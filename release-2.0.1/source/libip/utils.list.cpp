@@ -63,7 +63,7 @@ bool _LIST::grow()
 
 	void ** new_item_list = new void * [ item_capacity  + GROW_SIZE ];
 
-	if( new_item_list != NULL )
+	if( new_item_list == NULL )
 		return false;
 
 	// initialize our new stack of pointers to null and
