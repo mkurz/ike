@@ -236,7 +236,7 @@ bool _IKED_XAUTH_LDAP::auth_pwd( IKE_XAUTH & xauth )
 	BDATA	filter;
 	char *	atlist[ 1 ] = { NULL };
 	char *	userdn = NULL;
-	int		scope = LDAP_SCOPE_ONE;
+	int		scope = LDAP_SCOPE_ONELEVEL;
 	int	ecount = 0;
 
 	LDAPMessage * lr = NULL;
@@ -370,7 +370,7 @@ bool _IKED_XAUTH_LDAP::auth_grp( IKE_XAUTH & xauth, BDATA & group )
 	LDAP *	ld = NULL;
 	BDATA	filter;
 	char *	atlist[ 1 ] = { NULL };
-	int		scope = LDAP_SCOPE_ONE;
+	int		scope = LDAP_SCOPE_ONELEVEL;
 	int	ecount = 0;
 
 	LDAPMessage * lr = NULL;
