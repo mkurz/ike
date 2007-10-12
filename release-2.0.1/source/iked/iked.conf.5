@@ -549,6 +549,8 @@ Define the lifetime in kilobytes for this proposal.
 .Pp
 .Sh EXAMPLES
 .Pp
+This section contains a few iked configuration examples.
+.Pp
 The first example shows a configuration that only defines the parameters
 required to support client connectivity mode with NATT and debug options
 enabled.
@@ -579,6 +581,7 @@ daemon
     log_level degug;
     log_file "/var/log/iked.log";
 }
+
 peer 1.2.3.4
 {
     exchange main;
@@ -615,7 +618,6 @@ which be accessed directly ( not via IPSEC ). Peers that use an xauth user
 account that is a member of the "netadmin" group would have additional
 policies generated to allow access to the 10.4.4.0/24 network.
 .Bd -literal -offset
-
 daemon
 {
     socket ike 500;
