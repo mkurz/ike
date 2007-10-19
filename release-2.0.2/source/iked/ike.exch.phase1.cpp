@@ -291,12 +291,16 @@ long _IKED::process_phase1_recv( IDB_PH1 * ph1, PACKET_IKE & packet, unsigned ch
 					break;
 				}
 
-//				if( !( ph1->xstate & XSTATE_RECV_NDR ) )
+				if( !( ph1->xstate & XSTATE_RECV_NDR ) )
 				{
 					result = payload_get_natd( packet, ph1->natd_rs, ph1->hash_size );
 					ph1->xstate |= XSTATE_RECV_NDR;
 					break;
 				}
+
+				// FIXME : multiple remote NAT discovery hashes
+
+				packet.get_null( ph1->hash_size );
 
 				break;
 			}
@@ -535,7 +539,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 
 				unsigned char last = ISAKMP_PAYLOAD_NONE;
 
-				if( ph1->tunnel->natt_v != IPSEC_NATT_NONE )
+				if( ph1->natt_v != IPSEC_NATT_NONE )
 				{
 					phase1_gen_natd( ph1 );
 
@@ -564,7 +568,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 				// optionally add nat discovery hash payloads
 				//
 
-				if( ph1->tunnel->natt_v != IPSEC_NATT_NONE )
+				if( ph1->natt_v != IPSEC_NATT_NONE )
 				{
 					phase1_gen_natd( ph1 );
 					payload_add_natd( packet, ph1->natd_ld, last );
@@ -988,7 +992,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 
 							unsigned char last = ISAKMP_PAYLOAD_NONE;
 
-							if( ph1->tunnel->natt_v != IPSEC_NATT_NONE )
+							if( ph1->natt_v != IPSEC_NATT_NONE )
 							{
 								phase1_gen_natd( ph1 );
 
@@ -1052,7 +1056,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 
 							unsigned char last = ISAKMP_PAYLOAD_NONE;
 
-							if( ph1->tunnel->natt_v != IPSEC_NATT_NONE )
+							if( ph1->natt_v != IPSEC_NATT_NONE )
 							{
 								phase1_gen_natd( ph1 );
 
@@ -1137,7 +1141,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 
 				unsigned char last = ISAKMP_PAYLOAD_NONE;
 
-				if( ph1->tunnel->natt_v != IPSEC_NATT_NONE )
+				if( ph1->natt_v != IPSEC_NATT_NONE )
 				{
 					phase1_gen_natd( ph1 );
 
