@@ -279,6 +279,66 @@ long _IKED::process_config_recv( IDB_PH1 * ph1, PACKET_IKE & packet, unsigned ch
 				{
 					log.txt( LOG_INFO, "ii : received xauth request\n" );
 
+					//
+					// make sure have the type,
+					// user and password attribs
+					//
+
+					long count = cfg->attr_count();
+					long index = 0;
+
+					bool seen_type = false;
+					bool seen_user = false;
+					bool seen_pass = false;
+
+					for( ; index < count; index++ )
+					{
+						IKE_ATTR * attr = cfg->attr_get( index );
+
+						switch( attr->atype )
+						{
+							case XAUTH_TYPE:
+								seen_type = true;
+								break;
+
+							case XAUTH_USER_NAME:
+								seen_user = true;
+								if( attr->basic )
+									log.txt( LOG_INFO, "!! : warning, xauth username attribute type is basic\n" );
+								break;
+
+							case XAUTH_USER_PASSWORD:
+								seen_pass = true;
+								if( attr->basic )
+									log.txt( LOG_INFO, "!! : warning, xauth password attribute type is basic\n" );
+								break;
+						}
+					}
+
+					//
+					// sanity check request
+					//
+
+					if( !seen_type || !seen_user || !seen_pass )
+					{
+						if( !seen_type )
+							log.txt( LOG_ERROR, "!! : missing required xauth type attribute\n" );
+
+						if( !seen_user )
+							log.txt( LOG_ERROR, "!! : missing required xauth username attribute\n" );
+
+						if( !seen_pass )
+							log.txt( LOG_ERROR, "!! : missing required xauth password attribute\n" );
+
+						cfg->tunnel->close = TERM_BADMSG;
+
+						cfg->lstate |= LSTATE_DELETE;
+
+						break;
+					}
+
+					cfg->attr_reset();
+
 					cfg->tunnel->state |= TSTATE_RECV_XAUTH;
 				}
 
@@ -620,24 +680,15 @@ long _IKED::process_config_send( IDB_PH1 * ph1, IDB_CFG * cfg )
 
 				cfg->mtype = ISAKMP_CFG_REPLY;
 
-				long count = cfg->attr_count();
-				long index = 0;
+				cfg->attr_add_b( XAUTH_TYPE, XAUTH_TYPE_GENERIC );
 
-				for( ; index < count; index++ )
-				{
-					IKE_ATTR * attr = cfg->attr_get( index );
+				cfg->attr_add_v( XAUTH_USER_NAME,
+					cfg->tunnel->xauth.user.buff(),
+					cfg->tunnel->xauth.user.size() );
 
-					switch( attr->atype )
-					{
-						case XAUTH_USER_NAME:
-							attr->vdata.set( cfg->tunnel->xauth.user );
-							break;
-
-						case XAUTH_USER_PASSWORD:
-							attr->vdata.set( cfg->tunnel->xauth.pass );
-							break;
-					}
-				}
+				cfg->attr_add_v( XAUTH_USER_PASSWORD,
+					cfg->tunnel->xauth.pass.buff(),
+					cfg->tunnel->xauth.pass.size() );
 
 				//
 				// send config packet
