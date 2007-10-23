@@ -851,20 +851,24 @@ void _IKEC::run()
 
 		if( msgres == IKEI_PASSWD )
 		{
-/*			if( !DialogBoxParam(
-					hinst,
-					( LPCTSTR ) IDD_FILEPASS,
-					hw_main,
-					( DLGPROC ) dproc_filepass,
-					( long ) text ) )
+			FilePassData PassData;
+			PassData.filepath = text;
+			QApplication::postEvent( r, new FilePassEvent( &PassData ) );
+			while( PassData.result == -1 )
+				msleep( 10 );
+
+			if( PassData.result == QDialog::Rejected )
 			{
 				log( STATUS_FAIL, "server cert file requires password\n" );
 				goto config_failed;
 			}
 
-			ikei.send_msg_cfgstr( CFGSTR_CRED_FILE_PASS, filepass, strlen( filepass ) );
+			ikei.send_msg_cfgstr( CFGSTR_CRED_FILE_PASS,
+				( char * ) PassData.password.ascii(),
+				PassData.password.length() );
+
 			goto server_cert_rety;
-*/		}
+		}
 
 		log( STATUS_INFO, "server cert configured\n" );
 	}
@@ -892,20 +896,24 @@ void _IKEC::run()
 
 		if( msgres == IKEI_PASSWD )
 		{
-/*			if( !DialogBoxParam(
-					hinst,
-					( LPCTSTR ) IDD_FILEPASS,
-					hw_main,
-					( DLGPROC ) dproc_filepass,
-					( long ) text ) )
+			FilePassData PassData;
+			PassData.filepath = text;
+			QApplication::postEvent( r, new FilePassEvent( &PassData ) );
+			while( PassData.result == -1 )
+				msleep( 10 );
+
+			if( PassData.result == QDialog::Rejected )
 			{
 				log( STATUS_FAIL, "client cert file requires password\n" );
 				goto config_failed;
 			}
 
-			ikei.send_msg_cfgstr( CFGSTR_CRED_FILE_PASS, filepass, strlen( filepass ) );
+			ikei.send_msg_cfgstr( CFGSTR_CRED_FILE_PASS,
+				( char * ) PassData.password.ascii(),
+				PassData.password.length() );
+
 			goto client_cert_rety;
-*/		}
+		}
 
 		log( STATUS_INFO, "client cert configured\n" );
 
@@ -929,17 +937,24 @@ void _IKEC::run()
 
 		if( msgres == IKEI_PASSWD )
 		{
-/*			if( !DialogBoxParam(
-					hinst,
-					( LPCTSTR ) IDD_FILEPASS,
-					hw_main,
-					( DLGPROC ) dproc_filepass,
-					( long ) text ) )
+			FilePassData PassData;
+			PassData.filepath = text;
+			QApplication::postEvent( r, new FilePassEvent( &PassData ) );
+			while( PassData.result == -1 )
+				msleep( 10 );
+
+			if( PassData.result == QDialog::Rejected )
 			{
 				log( STATUS_FAIL, "client key file requires password\n" );
-				goto client_pkey_rety;
+				goto config_failed;
 			}
-*/		}
+
+			ikei.send_msg_cfgstr( CFGSTR_CRED_FILE_PASS,
+				( char * ) PassData.password.ascii(),
+				PassData.password.length() );
+
+			goto client_pkey_rety;
+		}
 
 		log( STATUS_INFO, "client key configured\n" );
 	}
