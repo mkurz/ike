@@ -190,7 +190,7 @@ void _IKEC::run()
 	// dpd enable
 
 	peer.dpd_mode = IPSEC_DPD_DISABLE;
-	peer.dpd_rate = 30;
+	peer.dpd_rate = 10;
 
 	numb = 0;
 	config.get_number( "network-dpd-enable", &numb );
