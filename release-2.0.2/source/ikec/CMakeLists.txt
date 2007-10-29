@@ -68,3 +68,7 @@ add_custom_command(
 install(
 	TARGETS ikec
 	RUNTIME	DESTINATION bin )
+
+install(
+	FILES ikec.1
+	DESTINATION ${PATH_MAN}/man1 )

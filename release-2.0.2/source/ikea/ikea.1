@@ -38,54 +38,38 @@
 .\"
 .\"
 .Dd Febuary 2, 2007
-.Dt IKED 8
+.Dt IKEA 1
 .Os
 .Sh NAME
-.Nm iked
-.Nd Internet Key Exchange Daemon
-.Sh SYNOPSIS
-.Nm
-.Op Fl f Ar cfgfile
-.Op Fl l Ar logfile
-.Op Fl d Ar level
-.Op Fl F
+.Nm ikea
+.Nd Internet Key Exchange Access Manager
 .Sh DESCRIPTION
 The
 .Nm
-program communicates using the IKE protocol ( RFC 2409 ) to provide
-automatic keying for an IPsec capable host. The daemon communicates with the
-host os via PF_KEY ( RFC 2367 ) to obtain the local policy configuration and
-to receive key aquisition requests. The daemon is also capable of acting as
-a client or client gateway and can create appropriate IPsec policy entries
-on bahalf of the host or peer to faclilitate remote access IPsec VPN
-connectivity. For more informaiton, please see the
-.Xr ikea 1
-and
+Qt GUI application is used to manage remote Site Configurations. A remote
+Site Configuration describes all the parameters used to establish an IPsec
+VPN Client connection with a remote gateway. In addition to the creation,
+removal and modificaion of remote Site Configurations, the
+.Nm
+application also allows a user to launch the
 .Xr ikec 1
-man pages.
+( Shrew Soft IKE Connect ) Qt GUI application for the selected Site.
 .Pp
-The options are as follows:
-.Bl -tag -width Fl
-.It Fl f Ar cfgfile
-Specify an alternate configuration file.
-.It Fl l Ar logfile
-Specify a log output file.
-.It Fl d Ar level
-Specify debug output level between 0-6.
-.It Fl F
-Run the program as a foreground application.
-.El
 .Sh RETURN VALUES
 The command exits with 0 on success, and non-zero on errors.
 .Sh FILES
-The default configuration file is
-.Pa /usr/local/etc/iked.conf
+All user related configuration data is stored under the
+.Pa ~/.iked
+directory. Site Configuration files are stored under the
+.Pa ~/.iked/sites
+directory. Certificates and keys are are typically stored under the
+.Pa ~/.iked/certs
+directory. These directories are automatically created when the
+.Nm
+application is run for the first time by a user.
 .Sh SEE ALSO
-.Xr ikea 1 ,
 .Xr ikec 1 ,
-.Xr ipsec 4 ,
-.Xr iked.conf 5 ,
-.Xr setkey 8
+.Xr iked 8
 .Sh HISTORY
 The
 .Nm

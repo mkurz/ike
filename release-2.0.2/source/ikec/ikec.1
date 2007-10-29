@@ -38,54 +38,48 @@
 .\"
 .\"
 .Dd Febuary 2, 2007
-.Dt IKED 8
+.Dt IKEC 1
 .Os
 .Sh NAME
-.Nm iked
-.Nd Internet Key Exchange Daemon
+.Nm ikec
+.Nd Internet Key Exchange Connect
 .Sh SYNOPSIS
 .Nm
-.Op Fl f Ar cfgfile
-.Op Fl l Ar logfile
-.Op Fl d Ar level
-.Op Fl F
+.Op Fl r Ar name
+.Op Fl u Ar username
+.Op Fl p Ar password
+.Op Fl a
 .Sh DESCRIPTION
 The
 .Nm
-program communicates using the IKE protocol ( RFC 2409 ) to provide
-automatic keying for an IPsec capable host. The daemon communicates with the
-host os via PF_KEY ( RFC 2367 ) to obtain the local policy configuration and
-to receive key aquisition requests. The daemon is also capable of acting as
-a client or client gateway and can create appropriate IPsec policy entries
-on bahalf of the host or peer to faclilitate remote access IPsec VPN
-connectivity. For more informaiton, please see the
+Qt GUI application provides a simple interface for users to interact with
+.Xr iked 8
+( Shrew Soft IKE Daemon ). This interface allows a user to control an IPsec
+VPN Client connection with a remote gateway. The parameters used for the
+connection are described in a Site Configuration file. For more information
+about managing Site Configuration files, please see the
 .Xr ikea 1
-and
-.Xr ikec 1
-man pages.
+man page. Please note, the ikec application is not typically started
+directly by a user but as a sub-process of the
+.Xr ikea 1
+Qt GUI application.
 .Pp
 The options are as follows:
 .Bl -tag -width Fl
-.It Fl f Ar cfgfile
-Specify an alternate configuration file.
-.It Fl l Ar logfile
-Specify a log output file.
-.It Fl d Ar level
-Specify debug output level between 0-6.
-.It Fl F
-Run the program as a foreground application.
+.It Fl r Ar name
+Specify the Site Configuration name.
+.It Fl u Ar username
+Specify the Xauth username for the connection.
+.It Fl p Ar password
+Specify the Xauth password for the connection.
+.It Fl a
+Automatically initiate the connection.
 .El
 .Sh RETURN VALUES
 The command exits with 0 on success, and non-zero on errors.
-.Sh FILES
-The default configuration file is
-.Pa /usr/local/etc/iked.conf
 .Sh SEE ALSO
 .Xr ikea 1 ,
-.Xr ikec 1 ,
-.Xr ipsec 4 ,
-.Xr iked.conf 5 ,
-.Xr setkey 8
+.Xr iked 8 ,
 .Sh HISTORY
 The
 .Nm
