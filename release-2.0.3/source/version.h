@@ -41,5 +41,5 @@
 
 #define CLIENT_VER_MAJ		2
 #define CLIENT_VER_MIN		0
-#define CLIENT_VER_BLD		2
+#define CLIENT_VER_BLD		3
 #define CLIENT_YEAR			2007
