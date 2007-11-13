@@ -2246,7 +2246,7 @@ bool _IKED::phase1_chk_natd( IDB_PH1 * ph1 )
 		// switch our port to natt
 		//
 
-		ph1->tunnel->saddr_l.saddr4.sin_port = ph1->tunnel->peer->natt_port;
+		ph1->tunnel->saddr_l.saddr4.sin_port = htons( LIBIKE_NATT_PORT );
 
 		//
 		// switch the peer port to natt
