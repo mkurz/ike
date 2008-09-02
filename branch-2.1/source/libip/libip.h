@@ -45,7 +45,7 @@
 #ifdef WIN32
 # define MPR50 1
 # include <winsock2.h>
-# include <windows.h>
+# include <ws2ipdef.h>
 # include <iphlpapi.h>
 # include <routprot.h>
 # include <inttypes.h>
@@ -491,16 +491,17 @@ typedef class DLX _IPQUEUE : private IDB_LIST
 
 }IPQUEUE;
 
-#ifndef WIN32
-
 typedef struct _IPROUTE_ENTRY : public IDB_ENTRY
 {
+	bool	local;
 	in_addr	iface;
 	in_addr	addr;
-	in_addr mask;
-	in_addr next;
+	in_addr	mask;
+	in_addr	next;
 	
 }IPROUTE_ENTRY;
+
+#ifndef WIN32
 
 typedef class DLX _IPROUTE_LIST : private IDB_LIST
 {
@@ -509,8 +510,8 @@ typedef class DLX _IPROUTE_LIST : private IDB_LIST
 	_IPROUTE_LIST();
 	virtual ~_IPROUTE_LIST();
 
-	bool	add( in_addr & iface, in_addr & addr, in_addr & mask, in_addr & next );
-	bool	get( in_addr & iface, in_addr & addr, in_addr & mask, in_addr & next );
+	bool	add( IPROUTE_ENTRY & route );
+	bool	get( IPROUTE_ENTRY & route );
 
 	long	count();
 	void	clean();
@@ -533,18 +534,21 @@ typedef class DLX _IPROUTE
 
 	public:
 
-	bool	iface_2_addr( in_addr & iface, unsigned long & index );
-	bool	addr_2_iface( unsigned long & index, in_addr & iface );
+#ifdef WIN32
+	bool	iface_metric( unsigned long & metric, unsigned long index );
+	bool	iface_2_addr( in_addr & iface, unsigned long index );
+	bool	addr_2_iface( unsigned long & index, in_addr iface );
+#endif	
 
 	public:
 
 	_IPROUTE();
 
-	bool add( in_addr & iface, bool local, in_addr addr, in_addr mask, in_addr next );
-	bool del( in_addr & iface, bool local, in_addr addr, in_addr mask, in_addr next );
-	bool get( in_addr & iface, bool & local, in_addr & addr, in_addr & mask, in_addr & next );
+	bool add( IPROUTE_ENTRY & route );
+	bool del( IPROUTE_ENTRY & route );
+	bool get( IPROUTE_ENTRY & route );
 
-	bool best( in_addr & iface, bool & local, in_addr & addr, in_addr & mask, in_addr & next );
+	bool best( IPROUTE_ENTRY & route );
 
 	bool increment( in_addr addr, in_addr mask );
 	bool decrement( in_addr addr, in_addr mask );
