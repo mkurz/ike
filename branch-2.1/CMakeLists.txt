@@ -20,7 +20,7 @@ include( CheckLibraryExists )
 
 set(
 	RELVER
-	"2.1.0" )
+	"2.1" )
 
 subdirs(
 	source/iked
