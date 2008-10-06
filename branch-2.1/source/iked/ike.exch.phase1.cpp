@@ -55,18 +55,24 @@ long _IKED::process_phase1_recv( IDB_PH1 * ph1, PACKET_IKE & packet, unsigned ch
 
 	//
 	// make sure we are not dealing
-	// whith a mature or dead sa
+	// with an sa marked for delete
 	//
 
 	if( ph1->status() == XCH_STATUS_DEAD )
 	{
-		log.txt( LLOG_ERROR, "!! : phase1 packet ignored ( sa marked for death )\n" );
+		log.txt( LLOG_ERROR, "!! : phase1 packet ignored ( phase1 marked for death )\n" );
 		return LIBIKE_OK;
 	}
 
+	//
+	// make sure we are not dealing
+	// with a mature sa
+	//
+
 	if( ph1->status() >= XCH_STATUS_MATURE )
 	{
-		log.txt( LLOG_ERROR, "!! : phase1 packet ignored ( sa already mature )\n" );
+		log.txt( LLOG_ERROR, "!! : phase1 packet ignored, resending last packet ( phase1 already mature )\n" );
+		ph1->resend();
 		return LIBIKE_OK;
 	}
 
@@ -424,7 +430,7 @@ long _IKED::process_phase1_recv( IDB_PH1 * ph1, PACKET_IKE & packet, unsigned ch
 		//
 
 		if( packet.get_payload_left() )
-			log.txt( LLOG_ERROR, "XX : warning, unprocessed payload data !!!\n" );
+			log.txt( LLOG_ERROR, "!! : unprocessed payload data\n" );
 
 		//
 		// now that we have decoded the payload,
@@ -722,7 +728,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 				// encrypt and send packet
 				//
 
-				packet_ike_send( ph1, ph1, packet, true );
+				packet_ike_send( ph1, ph1, packet, false );
 
 				ph1->xstate |= XSTATE_SENT_ID;
 			}
@@ -887,7 +893,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 						// send packet
 						//
 
-						packet_ike_send( ph1, ph1, packet, true );
+						packet_ike_send( ph1, ph1, packet, false );
 
 						ph1->xstate |= XSTATE_SENT_ID;
 						ph1->xstate |= XSTATE_SENT_HA;
@@ -945,7 +951,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 						// send packet
 						//
 
-						packet_ike_send( ph1, ph1, packet, true );
+						packet_ike_send( ph1, ph1, packet, false );
 
 						ph1->xstate |= XSTATE_SENT_ID;
 						ph1->xstate |= XSTATE_SENT_CT;
@@ -1102,7 +1108,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 							// send packet
 							//
 
-							packet_ike_send( ph1, ph1, packet, true );
+							packet_ike_send( ph1, ph1, packet, false );
 
 							ph1->xstate |= XSTATE_SENT_HA;
 						}
@@ -1153,7 +1159,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 							// send packet
 							//
 
-							packet_ike_send( ph1, ph1, packet, true );
+							packet_ike_send( ph1, ph1, packet, false );
 
 							ph1->xstate |= XSTATE_SENT_CT;
 							ph1->xstate |= XSTATE_SENT_SI;
@@ -1268,7 +1274,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 
 				packet.done();
 
-				packet_ike_send( ph1, ph1, packet, true );
+				packet_ike_send( ph1, ph1, packet, false );
 
 				ph1->xstate |= XSTATE_SENT_SA;
 				ph1->xstate |= XSTATE_SENT_KE;
@@ -1317,7 +1323,6 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 					ph1->status( XCH_STATUS_DEAD, XCH_FAILED_PEER_AUTH, ISAKMP_N_AUTHENTICATION_FAILED );
 
 				ph1->clean();
-				ph1->resend_clear( true );
 			}
 		}
 
@@ -1337,7 +1342,6 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 					ph1->status( XCH_STATUS_DEAD, XCH_FAILED_PEER_AUTH, ISAKMP_N_AUTHENTICATION_FAILED );
 
 				ph1->clean();
-				ph1->resend_clear( true );
 			}
 		}
 	}
@@ -1423,7 +1427,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 
 				if( !ph1->initiator && ph1->vendopts_l.flag.xauth )
 				{
-					IDB_CFG * cfg = new IDB_CFG( ph1->tunnel, true, 0 );
+					IDB_CFG * cfg = new IDB_CFG( ph1, true );
 					cfg->add( true );
 					process_config_send( ph1, cfg );
 					cfg->dec( true );
@@ -1447,7 +1451,7 @@ long _IKED::process_phase1_send( IDB_PH1 * ph1 )
 
 					if( ph1->tunnel->peer->xconf_mode != CONFIG_MODE_PUSH )
 					{
-						IDB_CFG * cfg = new IDB_CFG( ph1->tunnel, true, 0 );
+						IDB_CFG * cfg = new IDB_CFG( ph1, true );
 						cfg->add( true );
 						process_config_send( ph1, cfg );
 						cfg->dec( true );
@@ -1625,7 +1629,7 @@ long _IKED::phase1_gen_keys( IDB_PH1 * ph1 )
 	if( ph1->dh_size > result )
 	{
 		log.txt( LLOG_DEBUG,
-			"XX : warning, short DH shared secret computed\n" );
+			"ww : short DH shared secret computed\n" );
 
 		shared.size( result );
 		shared.ins( 0, ph1->dh_size - result );
@@ -2752,30 +2756,28 @@ bool _IKED::phase1_chk_port( IDB_PH1 * ph1, IKE_SADDR * saddr_r, IKE_SADDR * sad
 	if( saddr_r->saddr4.sin_port != ph1->tunnel->saddr_r.saddr4.sin_port )
 	{
 
-		if( !ph1->initiator )
-		{
-			log.txt( LLOG_ERROR,
-				"!! : responder port values have floated\n" );
-
-			return false;
-		}
-		else
+		if( ph1->initiator )
 		{
 			if( ph1->tunnel->peer->natt_mode == IPSEC_NATT_NONE )
 			{
 				log.txt( LLOG_INFO,
-					"ii : initiator port values floated but nat-t is disabled but \n" );
+					"ii : initiator port values floated but nat-t is disabled\n" );
 
 				return false;
 			}
 
 			if( ph1->tunnel->lstate & TSTATE_NATT_FLOAT )
 			{
-				log.txt( LLOG_ERROR,
-					"!! : initiator port values should only float once per session\n" );
+				log.txt( LLOG_INFO,
+					"ww : initiator port values should only float once per session\n" );
 
-				return false;
+				return true;
 			}
+		}
+		else
+		{
+			log.txt( LLOG_DEBUG,
+				"ii : responder port values have floated\n" );
 		}
 
 		//

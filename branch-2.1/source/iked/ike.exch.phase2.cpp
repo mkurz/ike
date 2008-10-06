@@ -58,23 +58,20 @@ long _IKED::process_phase2_recv( IDB_PH1 * ph1, PACKET_IKE & packet, unsigned ch
 	// sa for this message id
 	//
 
+	uint32_t msgid = packet.get_msgid();
+
 	IDB_PH2 * ph2 = NULL;
-
-	uint32_t msgid;
-	packet.get_msgid( msgid );
-
-	idb_list_ph2.find(
-		true,
-		&ph2,
-		ph1->tunnel,
-		XCH_STATUS_ANY,
-		XCH_STATUS_ANY,
-		NULL,
-		&msgid,
-		NULL,
-		NULL );
-
-	if( ph2 == NULL )
+	
+	if( !idb_list_ph2.find(
+			true,
+			&ph2,
+			ph1->tunnel,
+			XCH_STATUS_ANY,
+			XCH_STATUS_ANY,
+			NULL,
+			&msgid,
+			NULL,
+			NULL ) )
 	{
 		//
 		// looks like a unique phase 2
@@ -89,7 +86,7 @@ long _IKED::process_phase2_recv( IDB_PH1 * ph1, PACKET_IKE & packet, unsigned ch
 		// pahse2 exchange
 		//
 
-		phase2_gen_iv( ph1, ph2->msgid, ph2->iv );
+		ph2->new_msgiv( ph1 );
 
 		//
 		// make sure we respond using the
@@ -101,20 +98,44 @@ long _IKED::process_phase2_recv( IDB_PH1 * ph1, PACKET_IKE & packet, unsigned ch
 
 	//
 	// make sure we are not dealing
-	// whith a mature or dead sa
+	// with an sa marked for death
 	//
 
-	if( ( ph1->status() == XCH_STATUS_DEAD ) ||
-	    ( ph2->status() == XCH_STATUS_DEAD ) )
+	if( ph1->status() == XCH_STATUS_DEAD )
 	{
-		log.txt( LLOG_ERROR, "!! : phase2 packet ignored ( sa marked for death )\n" );
+		log.txt( LLOG_ERROR, "!! : phase2 packet ignored ( phase1 marked for death )\n" );
 		ph2->dec( true );
 		return LIBIKE_OK;
 	}
 
+	if( ph2->status() == XCH_STATUS_DEAD )
+	{
+		log.txt( LLOG_ERROR, "!! : phase2 packet ignored ( phase2 marked for death )\n" );
+		ph2->dec( true );
+		return LIBIKE_OK;
+	}
+
+	//
+	// make sure we are not dealing
+	// whith an imature phase1 sa
+	//
+
+	if( ph1->status() < XCH_STATUS_MATURE )
+	{
+		log.txt( LLOG_ERROR, "!! : config packet ignored ( phase1 not mature )\n" );
+		ph2->dec( true );
+		return LIBIKE_OK;
+	}
+
+	//
+	// make sure we are not dealing
+	// with a mature sa
+	//
+
 	if( ph2->status() >= XCH_STATUS_MATURE )
 	{
-		log.txt( LLOG_ERROR, "!! : phase2 packet ignored ( sa already mature )\n" );
+		log.txt( LLOG_ERROR, "!! : phase2 packet ignored, resending last packet ( phase2 already mature )\n" );
+		ph2->resend();
 		ph2->dec( true );
 		return LIBIKE_OK;
 	}
@@ -492,7 +513,7 @@ long _IKED::process_phase2_recv( IDB_PH1 * ph1, PACKET_IKE & packet, unsigned ch
 		//
 
 		if( packet.get_payload_left() )
-			log.txt( LLOG_ERROR, "XX : warning, unprocessed payload data !!!\n" );
+			log.txt( LLOG_ERROR, "!! : unprocessed payload data !!!\n" );
 
 		//
 		// check the final paylaod process result
@@ -646,7 +667,6 @@ long _IKED::process_phase2_recv( IDB_PH1 * ph1, PACKET_IKE & packet, unsigned ch
 
 					ph2->status( XCH_STATUS_MATURE, XCH_NORMAL, 0 );
 					ph2->clean();
-					ph2->resend_clear( true );
 				}
 			}
 		}
@@ -753,7 +773,7 @@ long _IKED::process_phase2_send( IDB_PH1 * ph1, IDB_PH2 * ph2 )
 			// pahse2 exchange
 			//
 
-			phase2_gen_iv( ph1, ph2->msgid, ph2->iv );
+			ph2->new_msgiv( ph1 );
 
 			//
 			// send packet
@@ -817,7 +837,6 @@ long _IKED::process_phase2_send( IDB_PH1 * ph1, IDB_PH2 * ph2 )
 
 			ph2->status( XCH_STATUS_MATURE, XCH_NORMAL, 0 );
 			ph2->clean();
-			ph2->resend_clear( true );
 		}
 	}
 
@@ -954,7 +973,7 @@ long _IKED::process_phase2_send( IDB_PH1 * ph1, IDB_PH2 * ph2 )
 			// send packet
 			//
 
-			packet_ike_send( ph1, ph2, packet, true );
+			packet_ike_send( ph1, ph2, packet, false );
 
 			//
 			// update sa state
@@ -1837,37 +1856,6 @@ long _IKED::phase2_gen_keys( IDB_PH1 * ph1, IDB_PH2 * ph2, long dir, IKE_PROPOSA
 	pfkey_send_update( ph2, proposal, ekey, akey, dir );
 
 	ph2->lstate |= LSTATE_HASKEYS;
-
-	return LIBIKE_OK;
-}
-
-long _IKED::phase2_gen_iv( IDB_PH1 * ph1, unsigned long msgid, BDATA & iv )
-{
-	//
-	// create new informational iv
-	//
-
-	if( ph1->evp_cipher != NULL )
-	{
-		unsigned char iv_data[ EVP_MAX_MD_SIZE ];
-		unsigned long iv_size = EVP_CIPHER_iv_length( ph1->evp_cipher );
-
-		EVP_MD_CTX ctx_hash;
-		EVP_DigestInit( &ctx_hash, ph1->evp_hash );
-		EVP_DigestUpdate( &ctx_hash, ph1->iv.buff(), ph1->iv.size() );
-		EVP_DigestUpdate( &ctx_hash, &msgid, 4 );
-		EVP_DigestFinal( &ctx_hash, iv_data, NULL );
-		EVP_MD_CTX_cleanup( &ctx_hash );
-
-		iv.set( iv_data, iv_size );
-
-		log.bin(
-			LLOG_DEBUG,
-			LLOG_DECODE,
-			iv.buff(),
-			iv.size(),
-			"== : new phase2 iv" );
-	}
 
 	return LIBIKE_OK;
 }

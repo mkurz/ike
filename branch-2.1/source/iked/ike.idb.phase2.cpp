@@ -244,7 +244,6 @@ void _IDB_LIST_PH2::flush()
 _IDB_PH2::_IDB_PH2( IDB_TUNNEL * set_tunnel, bool set_initiator, uint32_t set_msgid, uint32_t set_seqid_in )
 {
 	memset( &cookies, 0, sizeof( cookies ) );
-	msgid = 0;
 	seqid_in = 0;
 	seqid_out = 0;
 	nailed_plcyid = 0;
@@ -272,7 +271,7 @@ _IDB_PH2::_IDB_PH2( IDB_TUNNEL * set_tunnel, bool set_initiator, uint32_t set_ms
 	if( set_msgid )
 		msgid = set_msgid;
 	else
-		iked.rand_bytes( &msgid, sizeof( msgid ) );
+		new_msgid();
 
 	//
 	// initialize seqids
@@ -344,7 +343,7 @@ void _IDB_PH2::end()
 	// clear the resend queue
 	//
 
-	resend_clear( false );
+	resend_clear( false, true );
 
 	//
 	// remove scheduled events
@@ -444,7 +443,7 @@ bool _IDB_PH2::setup_dhgrp()
 
 		if( dh_size > result )
 		{
-			iked.log.txt( LLOG_DEBUG, "XX : warning, short PFS DH public value\n" );
+			iked.log.txt( LLOG_DEBUG, "ww : short PFS DH public value\n" );
 			xl.size( result );
 			xl.ins( 0, dh_size - result );
 		}

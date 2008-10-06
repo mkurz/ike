@@ -567,27 +567,12 @@ typedef class _IDB_XCH : public IDB_RC_ENTRY
 	long		lstate;
 	long		xstate;
 
-	DH *		dh;
-	long		dh_size;
-
-	BDATA		nonce_l;
-	BDATA		nonce_r;
-
-	BDATA		xl;
-	BDATA		xr;
-
 	BDATA		hash_l;
 	BDATA		hash_r;
 
 	BDATA		hda;		// hash data accumulator
 	BDATA		iv;
 
-	//
-	// FIXME : only use lists in classes that need them
-	//
-
-	IDB_LIST_PROPOSAL	plist_l;
-	IDB_LIST_PROPOSAL	plist_r;
 	IDB_LIST_NOTIFY		notifications;
 
 	ITH_EVENT_RESEND	event_resend;
@@ -598,17 +583,47 @@ typedef class _IDB_XCH : public IDB_RC_ENTRY
 	XCH_STATUS	status();
 	XCH_STATUS	status( XCH_STATUS status, XCH_ERRORCODE errorcode, uint16_t notifycode );
 
+	void	new_msgid();
+	bool	new_msgiv( IDB_PH1 * ph1 );
+
+	bool	resend();
 	bool	resend_queue( PACKET_IP & packet );
+	void	resend_purge();
 	bool	resend_sched( bool lock );
-	void	resend_clear( bool lock ) ;
+	void	resend_clear( bool lock, bool purge );
 
 }IDB_XCH;
+
+//==============================================================================
+// ike generic sa exchange handle class
+//
+
+typedef class _IDB_XCH_SA : public IDB_XCH
+{
+	public:
+
+	DH *		dh;
+	long		dh_size;
+
+	BDATA		xl;
+	BDATA		xr;
+
+	BDATA		nonce_l;
+	BDATA		nonce_r;
+
+	IDB_LIST_PROPOSAL	plist_l;
+	IDB_LIST_PROPOSAL	plist_r;
+
+	_IDB_XCH_SA();
+	virtual ~_IDB_XCH_SA();
+
+}IDB_XCH_SA;
 
 //==============================================================================
 // ike phase1 exchange handle class
 //
 
-typedef class _IDB_PH1 : public IDB_XCH
+typedef class _IDB_PH1 : public IDB_XCH_SA
 {
 	virtual void	beg();
 	virtual void	end();
@@ -706,7 +721,7 @@ typedef class _IDB_LIST_PH1 : public IDB_LIST_IKED
 // ike phase2 exchange handle class
 //
 
-typedef class _IDB_PH2 : public IDB_XCH
+typedef class _IDB_PH2 : public IDB_XCH_SA
 {
 	public:
 
@@ -779,6 +794,11 @@ typedef class _IDB_CFG : public IDB_XCH
 
 	public:
 
+	// this should never be accessed
+	// directly, only for comparison
+
+	IDB_PH1 *	ph1ref;
+
 	// sub class functions
 
 	virtual	const char *	name();
@@ -789,7 +809,7 @@ typedef class _IDB_CFG : public IDB_XCH
 
 	// class functions
 
-	_IDB_CFG( IDB_TUNNEL * tunnel, bool set_initiator, unsigned long set_msgid );
+	_IDB_CFG( IDB_PH1 * set_ph1ref, bool set_initiator );
 	virtual ~_IDB_CFG();
 
 	BDATA		hash;
@@ -823,8 +843,7 @@ typedef class _IDB_LIST_CFG : public IDB_LIST_IKED
 	bool find(
 			bool lock,
 			IDB_CFG ** cfg,
-			IDB_TUNNEL * tunnel,
-			unsigned long msgid );
+			IDB_PH1 * ph1 );
 
 }IDB_LIST_CFG;
 

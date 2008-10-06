@@ -165,7 +165,7 @@ long _IKED::process_inform_send( IDB_PH1 * ph1, IDB_XCH * inform )
 			inform->hash_l.buff(),
 			inform->hash_l.size() );
 
-		phase2_gen_iv( ph1, inform->msgid, inform->iv );
+		inform->new_msgiv( ph1 );
 	}
 
 	//
@@ -194,9 +194,8 @@ long _IKED::process_inform_recv( IDB_PH1 * ph1, PACKET_IKE & packet, unsigned ch
 	// informational exchange
 	//
 
-	packet.get_msgid( inform.msgid );
-
-	phase2_gen_iv( ph1, inform.msgid, inform.iv );
+	inform.msgid = packet.get_msgid();
+	inform.new_msgiv( ph1 );
 
 	//
 	// decrypt packet
@@ -342,7 +341,7 @@ long _IKED::process_inform_recv( IDB_PH1 * ph1, PACKET_IKE & packet, unsigned ch
 		//
 
 		if( packet.get_payload_left() )
-			log.txt( LLOG_ERROR, "XX : warning, unprocessed payload data !!!\n" );
+			log.txt( LLOG_ERROR, "!! : unprocessed payload data !!!\n" );
 
 		//
 		// check the result
@@ -696,8 +695,8 @@ long _IKED::inform_chk_notify( IDB_PH1 * ph1, IKE_NOTIFY * notify, bool secure )
 								proposal_l->life_sec = lsecs;
 								proposal_r->life_sec = lsecs;
 
-								log.txt( LLOG_DEBUG, "XX : spi_l = 0x%08x\n", ntohl( proposal_l->spi.spi ) );
-								log.txt( LLOG_DEBUG, "XX : spi_r = 0x%08x\n", ntohl( proposal_r->spi.spi ) );
+								log.txt( LLOG_DEBUG, "ii : spi_l = 0x%08x\n", ntohl( proposal_l->spi.spi ) );
+								log.txt( LLOG_DEBUG, "ii : spi_r = 0x%08x\n", ntohl( proposal_r->spi.spi ) );
 								pindex++;
 							}
 						}
@@ -853,7 +852,7 @@ long _IKED::inform_new_notify( IDB_PH1 * ph1, IDB_PH2 * ph2, unsigned short code
 	//
 
 	IDB_INF inform;
-	rand_bytes( &inform.msgid, 4 );
+	inform.new_msgid();
 
 	//
 	// will this be a phase1 or phase2 notification
@@ -958,7 +957,7 @@ long _IKED::inform_new_delete( IDB_PH1 * ph1, IDB_PH2 * ph2 )
 	//
 
 	IDB_INF inform;
-	rand_bytes( &inform.msgid, 4 );
+	inform.new_msgid();
 
 	//
 	// will this be a phase1 or phase2 notification
