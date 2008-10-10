@@ -179,13 +179,13 @@ void site::init()
 {
 	comboBoxConfigMethod->setCurrentItem( 1 );
 
-	lineEditAddress->setInputMask( "00D . 00D . 00D . 00D" );
+	lineEditAddress->setInputMask( "009 . 009 . 009 . 009" );
 	lineEditAddress->setText( "0.0.0.0" );
 
-	lineEditNetmask->setInputMask( "00D . 00D . 00D . 00D" );
+	lineEditNetmask->setInputMask( "009 . 009 . 009 . 009" );
 	lineEditNetmask->setText( "255.255.255.255" );
 
-	lineEditDNSServer->setInputMask( "00D . 00D . 00D . 00D" );
+	lineEditDNSServer->setInputMask( "009 . 009 . 009 . 009" );
 	lineEditDNSServer->setText( "0.0.0.0" );
 
 #ifdef OPT_NATT
