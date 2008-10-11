@@ -141,7 +141,7 @@ void _IKEC::run()
 	while( host && * host == ' ' )
 		host++;
 
-	if( isdigit( host[ 0 ] ) )
+	if( inet_addr( host ) != INADDR_NONE )
 	{
 		peer.saddr.saddr4.sin_family = AF_INET;
 		peer.saddr.saddr4.sin_addr.s_addr = inet_addr( host );
