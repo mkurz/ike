@@ -1023,8 +1023,6 @@ long _IKED::pfkey_recv_getspi( PFKI_MSG & msg )
 		log.txt( LLOG_DEBUG, "ii : waiting for %i spi updates\n", ph2->spicount );
 	else
 	{
-		ph2->lstate |= LSTATE_HASSPI;
-
 		IDB_PH1 * ph1 = NULL;
 
 		if( ph2->initiator )
