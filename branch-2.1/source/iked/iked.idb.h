@@ -511,6 +511,7 @@ typedef class _IDB_POLICY : public IDB_RC_ENTRY, public PFKI_SPINFO
 	bool			route_added;
 	IPROUTE_ENTRY	route_entry;
 	bool			nailed;
+	bool			initial;
 
 	virtual	const char *	name();
 	virtual IDB_RC_LIST *	list();
