@@ -1450,27 +1450,27 @@ long _IKED::config_xconf_set( IDB_CFG * cfg, long & setmask, long nullmask, VEND
 					subnet.addr = ph2id.addr1;
 					subnet.mask = ph2id.addr2;
 
-					cfg->attr_add_v( INTERNAL_IP4_SUBNET,
-						&subnet,
-						sizeof( subnet ) );
-
 					char txtid[ LIBIKE_MAX_TEXTP2ID ];
 					text_ph2id( txtid, &ph2id );
 
-					log.txt( LLOG_DEBUG,
-						"ii : - IP4 Subnet = %s\n",
-						txtid );
+					if( subnet.addr.s_addr &&
+						subnet.mask.s_addr )
+					{
+						cfg->attr_add_v(
+							INTERNAL_IP4_SUBNET,
+							&subnet,
+							sizeof( subnet ) );
 
-					//
-					// we need to perform special
-					// operations if we instruct
-					// our peer to force all via
-					// this tunnel
-					//
-
-					if( !subnet.addr.s_addr &&
-						!subnet.mask.s_addr )
-						cfg->tunnel->force_all = true;
+						log.txt( LLOG_DEBUG,
+							"ii : - IP4 Subnet = %s\n",
+							txtid );
+					}
+					else
+					{
+						log.txt( LLOG_DEBUG,
+							"ii : - IP4 Subnet = %s\n ( invalid subnet ignored )",
+							txtid );
+					}
 				}
 			}
 		}
@@ -1558,27 +1558,26 @@ long _IKED::config_xconf_set( IDB_CFG * cfg, long & setmask, long nullmask, VEND
 					unity_net.mask = ph2id.addr2;
 					unity_net.port_rmt = ph2id.port;
 
-					cfg->attr_add_v( UNITY_SPLIT_INCLUDE,
-						&unity_net,
-						sizeof( unity_net ) );
-
 					char txtid[ LIBIKE_MAX_TEXTP2ID ];
 					text_ph2id( txtid, &ph2id );
 
-					log.txt( LLOG_DEBUG,
-						"ii : - IP4 Split Network Include = %s\n",
-						txtid );
+					if( unity_net.addr.s_addr &&
+						unity_net.mask.s_addr )
+					{
+						cfg->attr_add_v( UNITY_SPLIT_INCLUDE,
+							&unity_net,
+							sizeof( unity_net ) );
 
-					//
-					// we need to perform special
-					// operations if we instruct
-					// our peer to force all via
-					// this tunnel
-					//
-
-					if( !unity_net.addr.s_addr &&
-						!unity_net.mask.s_addr )
-						cfg->tunnel->force_all = true;
+						log.txt( LLOG_DEBUG,
+							"ii : - IP4 Split Network Include = %s\n",
+							txtid );
+					}
+					else
+					{
+						log.txt( LLOG_DEBUG,
+							"ii : - IP4 Split Network Include = %s\n ( invalid subnet ignored )",
+							txtid );
+					}
 				}
 
 				index = 0;
@@ -1588,19 +1587,31 @@ long _IKED::config_xconf_set( IDB_CFG * cfg, long & setmask, long nullmask, VEND
 					IKE_UNITY_NET unity_net;
 					memset( &unity_net, 0, sizeof( unity_net ) );
 
+					unity_net.prot = ph2id.prot;
 					unity_net.addr = ph2id.addr1;
 					unity_net.mask = ph2id.addr2;
-
-					cfg->attr_add_v( UNITY_SPLIT_EXCLUDE,
-						&unity_net,
-						sizeof( unity_net ) );
+					unity_net.port_rmt = ph2id.port;
 
 					char txtid[ LIBIKE_MAX_TEXTP2ID ];
 					text_ph2id( txtid, &ph2id );
 
-					log.txt( LLOG_DEBUG,
-						"ii : - IP4 Split Network Exclude = %s\n",
-						txtid );
+					if( unity_net.addr.s_addr &&
+						unity_net.mask.s_addr )
+					{
+						cfg->attr_add_v( UNITY_SPLIT_EXCLUDE,
+							&unity_net,
+							sizeof( unity_net ) );
+
+						log.txt( LLOG_DEBUG,
+							"ii : - IP4 Split Network Exclude = %s\n",
+							txtid );
+					}
+					else
+					{
+						log.txt( LLOG_DEBUG,
+							"ii : - IP4 Split Network Exclude = %s\n ( invalid subnet ignored )",
+							txtid );
+					}
 				}
 			}
 		}
@@ -1938,28 +1949,25 @@ long _IKED::config_xconf_get( IDB_CFG * cfg, long & getmask, long readmask, VEND
 							char txtid[ LIBIKE_MAX_TEXTP2ID ];
 							text_ph2id( txtid, &ph2id );
 
-							log.txt( LLOG_DEBUG,
-								"ii : - IP4 Subnet = %s\n",
-								txtid );
+							if( subnet->addr.s_addr &&
+								subnet->mask.s_addr )
+							{
+								log.txt( LLOG_DEBUG,
+									"ii : - IP4 Subnet = %s\n",
+									txtid );
 
-							if( readmask & IPSEC_OPTS_SPLITNET )
 								cfg->tunnel->idlist_incl.add( ph2id );
-
-							//
-							// we need to perform special
-							// operations if we force all
-							// taffic via this tunnel
-							//
-
-							if( !subnet->addr.s_addr &&
-								!subnet->mask.s_addr )
-								cfg->tunnel->force_all = true;
+							}
+							else
+							{
+								log.txt( LLOG_DEBUG,
+									"ii : - IP4 Subnet = %s ( invalid subnet ignored )\n",
+									txtid );
+							}
 						}
 					}
 					else
-					{
 						log.txt( LLOG_DEBUG, "ii : - IP4 Subnet\n" );
-					}
 
 					break;
 				}
@@ -2088,31 +2096,39 @@ long _IKED::config_xconf_get( IDB_CFG * cfg, long & getmask, long readmask, VEND
 
 							if( attr->atype == UNITY_SPLIT_INCLUDE )
 							{
-								log.txt( LLOG_DEBUG,
-									"ii : - IP4 Split Network Include = %s\n",
-									txtid );
+								if( unity_net->addr.s_addr &&
+									unity_net->addr.s_addr )
+								{
+									log.txt( LLOG_DEBUG,
+										"ii : - IP4 Split Network Include = %s\n",
+										txtid );
 
-								if( readmask & IPSEC_OPTS_SPLITNET )
 									cfg->tunnel->idlist_incl.add( ph2id );
-
-								//
-								// we need to perform special
-								// operations if we force all
-								// taffic via this tunnel
-								//
-
-								if( !unity_net->addr.s_addr &&
-									!unity_net->mask.s_addr )
-									cfg->tunnel->force_all = true;
+								}
+								else
+								{
+									log.txt( LLOG_DEBUG,
+										"ii : - IP4 Split Network Include = %s ( invalid subnet ignored )\n",
+										txtid );
+								}
 							}
 							else
 							{
-								log.txt( LLOG_DEBUG,
-									"ii : - IP4 Split Network Exclude = %s\n",
-									txtid );
+								if( unity_net->addr.s_addr &&
+									unity_net->addr.s_addr )
+								{
+									log.txt( LLOG_DEBUG,
+										"ii : - IP4 Split Network Exclude = %s\n",
+										txtid );
 
-								if( readmask & IPSEC_OPTS_SPLITNET )
 									cfg->tunnel->idlist_excl.add( ph2id );
+								}
+								else
+								{
+									log.txt( LLOG_DEBUG,
+										"ii : - IP4 Split Network Exclude = %s ( invalid subnet ignored )\n",
+										txtid );
+								}
 							}
 						}
 					}
