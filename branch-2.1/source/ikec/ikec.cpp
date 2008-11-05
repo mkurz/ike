@@ -762,6 +762,13 @@ void _IKEC::run()
 		peer.plcy_mode = POLICY_MODE_COMPAT;
 	}
 
+	// vendor compatibility options
+
+	numb = 0;
+	config.get_number( "vendor-chkpt-enable", &numb );
+	if( numb )
+		xconf.opts |= IPSEC_OPTS_VEND_CHKPT;
+
 	//
 	// ---------- CONNECT TO IKED ----------
 	//
