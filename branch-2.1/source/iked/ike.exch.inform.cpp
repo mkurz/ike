@@ -544,6 +544,74 @@ long _IKED::inform_chk_notify( IDB_PH1 * ph1, IKE_NOTIFY * notify, bool secure )
 		{
 			switch( notify->code )
 			{
+				case ISAKMP_N_UNITY_LOAD_BALANCE:
+				{
+					if( notify->data.size() != sizeof( in_addr ) )
+					{
+						log.txt( LLOG_ERROR, "!! : UNITY-LOAD-BALANCE address data is invalid ( %i bytes )\n", notify->data.size() );
+						break;
+					}
+
+					in_addr addr;
+					notify->data.get( &addr, sizeof( addr ) );
+
+					char txtaddr[ LIBIKE_MAX_TEXTADDR ];
+					text_addr( txtaddr, addr );
+
+					//
+					// only migrate if we have yet to setup
+					// the tunnel policies and routes
+					//
+
+					if( ph1->tunnel->tstate & TSTATE_VNET_CONFIG )
+					{
+						log.txt( LLOG_INFO, "ii : UNITY-LOAD-BALANCE request ignored ( tunnel already mature )\n" );
+						break;
+					}
+
+					log.txt( LLOG_INFO, "ii : UNITY-LOAD-BALANCE requested migration to %s\n", txtaddr );
+
+					//
+					// create a new phase1 object
+					//
+
+					IDB_PH1 * ph1_ulb = new IDB_PH1( ph1->tunnel, true, NULL );
+					ph1_ulb->add( true );
+
+					//
+					// flag our existing phase1 object for removal
+					//
+
+					ph1->status( XCH_STATUS_DEAD, XCH_NORMAL, 0 );
+
+					//
+					// re-initialize our tunnel state
+					//
+
+					ph1_ulb->tunnel->tstate = 0;
+					ph1_ulb->tunnel->lstate = 0;
+					ph1_ulb->tunnel->natt_version = IPSEC_NATT_NONE;
+
+					ph1_ulb->tunnel->peer->saddr.saddr4.sin_addr = addr;
+					ph1_ulb->tunnel->saddr_r = ph1_ulb->tunnel->peer->saddr;
+
+					//
+					// reinitialize our filter
+					//
+#ifdef WIN32
+					iked.tunnel_filter_del( ph1_ulb->tunnel );
+					iked.tunnel_filter_add( ph1_ulb->tunnel, false );
+#endif
+					//
+					// initiate new phase1
+					//
+
+					process_phase1_send( ph1_ulb );
+					ph1_ulb->dec( true );
+
+					break;
+				}
+
 				case ISAKMP_N_DPD_R_U_THERE:
 				{
 					uint32_t sequence;
