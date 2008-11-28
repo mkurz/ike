@@ -86,7 +86,7 @@ void update_site( CONFIG * config, const char * path, long & version )
 	}
 
 	version++;
-	printf( "updated site \'%s\' to version %i\n", config->get_id(), version );
+	printf( "updated site \'%s\' to version %li\n", config->get_id(), version );
 	config->set_number( "version", version );
 	config->file_write( path );
 }
