@@ -179,12 +179,27 @@ long _IKED::loop_ipc_client( IKEI * ikei )
 
 					IKE_SADDR saddr_l;
 
-					if( !find_addr_l(
-							peer->saddr,
-							saddr_l,
-							500 ) )
+					if( socket_lookup_addr(	peer->saddr, saddr_l ) != LIBIKE_OK )
 					{
 						log.txt( LLOG_ERROR, "!! : no route to host\n" );
+
+						delete tunnel;
+
+						msg.set_result( IKEI_RESULT_FAILED );
+						ikei->send_message( msg );
+
+						failure = true;
+
+						break;
+					}
+
+					//
+					// determine local socket port
+					//
+
+					if( socket_lookup_port( saddr_l, false ) != LIBIKE_OK )
+					{
+						log.txt( LLOG_ERROR, "!! : no socket for selected address\n" );
 
 						delete tunnel;
 
