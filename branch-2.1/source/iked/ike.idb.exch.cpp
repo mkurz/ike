@@ -81,6 +81,7 @@ _IDB_XCH::_IDB_XCH()
 	//
 
 	event_resend.xch = this;
+	event_resend.attempt = 0;
 }
 
 _IDB_XCH::~_IDB_XCH()
