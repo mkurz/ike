@@ -111,25 +111,6 @@
                             <string>Port</string>
                         </property>
                     </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>lineEditHost</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>10</x>
-                                <y>40</y>
-                                <width>191</width>
-                                <height>21</height>
-                            </rect>
-                        </property>
-                        <property name="frameShape">
-                            <enum>LineEditPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                            <enum>Sunken</enum>
-                        </property>
-                    </widget>
                     <widget class="QLabel">
                         <property name="name">
                             <cstring>textLabelConfigMethod</cstring>
@@ -196,6 +177,25 @@
                                 <width>130</width>
                                 <height>21</height>
                             </rect>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit">
+                        <property name="name">
+                            <cstring>lineEditHost</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>10</x>
+                                <y>40</y>
+                                <width>191</width>
+                                <height>21</height>
+                            </rect>
+                        </property>
+                        <property name="frameShape">
+                            <enum>LineEditPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                            <enum>Sunken</enum>
                         </property>
                     </widget>
                 </widget>
@@ -897,44 +897,6 @@
                         <string>Authentication Method</string>
                     </property>
                 </widget>
-                <widget class="QComboBox">
-                    <item>
-                        <property name="text">
-                            <string>Hybrid RSA + XAuth</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property name="text">
-                            <string>Mutual RSA + XAuth</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property name="text">
-                            <string>Mutual PSK + XAuth</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property name="text">
-                            <string>Mutual RSA</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property name="text">
-                            <string>Mutual PSK</string>
-                        </property>
-                    </item>
-                    <property name="name">
-                        <cstring>comboBoxAuthMethod</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>130</x>
-                            <y>10</y>
-                            <width>135</width>
-                            <height>21</height>
-                        </rect>
-                    </property>
-                </widget>
                 <widget class="QTabWidget">
                     <property name="name">
                         <cstring>tabWidgetAuthInfo</cstring>
@@ -1348,6 +1310,49 @@
                             </property>
                         </widget>
                     </widget>
+                </widget>
+                <widget class="QComboBox">
+                    <item>
+                        <property name="text">
+                            <string>Hybrid RSA + XAuth</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Hybrid GRP + XAuth</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Mutual RSA + XAuth</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Mutual PSK + XAuth</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Mutual RSA</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Mutual PSK</string>
+                        </property>
+                    </item>
+                    <property name="name">
+                        <cstring>comboBoxAuthMethod</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>130</x>
+                            <y>10</y>
+                            <width>135</width>
+                            <height>21</height>
+                        </rect>
+                    </property>
                 </widget>
             </widget>
             <widget class="QWidget">

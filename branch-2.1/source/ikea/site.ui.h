@@ -45,10 +45,11 @@
 #define EXCH_MAIN_MODE		1
 
 #define AUTH_HYBRID_RSA_XAUTH	0
-#define AUTH_MUTUAL_RSA_XAUTH	1
-#define AUTH_MUTUAL_PSK_XAUTH	2
-#define AUTH_MUTUAL_RSA		3
-#define AUTH_MUTUAL_PSK		4
+#define AUTH_HYBRID_GRP_XAUTH	1
+#define AUTH_MUTUAL_RSA_XAUTH	2
+#define AUTH_MUTUAL_PSK_XAUTH	3
+#define AUTH_MUTUAL_RSA		4
+#define AUTH_MUTUAL_PSK		5
 
 #define IDTXT_NONE	"No Identity"
 #define IDTXT_ASN1	"ASN.1 Distinguished Name"
@@ -488,17 +489,20 @@ bool site::Load( CONFIG & config )
 		if( !strcmp( "hybrid-rsa-xauth", text ) )
 			comboBoxAuthMethod->setCurrentItem( 0 );
 
-		if( !strcmp( "mutual-rsa-xauth", text ) )
+		if( !strcmp( "hybrid-grp-xauth", text ) )
 			comboBoxAuthMethod->setCurrentItem( 1 );
 
-		if( !strcmp( "mutual-psk-xauth", text ) )
+		if( !strcmp( "mutual-rsa-xauth", text ) )
 			comboBoxAuthMethod->setCurrentItem( 2 );
 
-		if( !strcmp( "mutual-rsa", text ) )
+		if( !strcmp( "mutual-psk-xauth", text ) )
 			comboBoxAuthMethod->setCurrentItem( 3 );
 
-		if( !strcmp( "mutual-psk", text ) )
+		if( !strcmp( "mutual-rsa", text ) )
 			comboBoxAuthMethod->setCurrentItem( 4 );
+
+		if( !strcmp( "mutual-psk", text ) )
+			comboBoxAuthMethod->setCurrentItem( 5 );
 	}
 
 	// local identity type
@@ -942,6 +946,11 @@ bool site::Save( CONFIG & config )
 		case AUTH_HYBRID_RSA_XAUTH:
 			config.set_string( "auth-method",
 				"hybrid-rsa-xauth", strlen( "hybrid-rsa-xauth" ) );
+			break;
+
+		case AUTH_HYBRID_GRP_XAUTH:
+			config.set_string( "auth-method",
+				"hybrid-rsa-xauth", strlen( "hybrid-grp-xauth" ) );
 			break;
 
 		case AUTH_MUTUAL_RSA_XAUTH:
@@ -1489,6 +1498,7 @@ void site::UpdateAuthentication()
 	switch( auth )
 	{
 		case AUTH_HYBRID_RSA_XAUTH:
+		case AUTH_HYBRID_GRP_XAUTH:
 		{
 			comboBoxLocalIDType->clear();
 
@@ -1571,6 +1581,7 @@ void site::UpdateAuthentication()
 	switch( auth )
 	{
 		case AUTH_HYBRID_RSA_XAUTH:
+		case AUTH_HYBRID_GRP_XAUTH:
 		case AUTH_MUTUAL_RSA_XAUTH:
 		case AUTH_MUTUAL_RSA:
 		{
@@ -1648,6 +1659,22 @@ void site::UpdateAuthentication()
 			toolButtonPKeyFile->setEnabled( false );
 			
 			lineEditPSK->setEnabled( false );
+
+			break;
+		}
+
+		case AUTH_HYBRID_GRP_XAUTH:
+		{
+			lineEditCAFile->setEnabled( true );
+			toolButtonCAFile->setEnabled( true );
+			
+			lineEditCertFile->setEnabled( false );
+			toolButtonCertFile->setEnabled( false );
+			
+			lineEditPKeyFile->setEnabled( false );
+			toolButtonPKeyFile->setEnabled( false );
+			
+			lineEditPSK->setEnabled( true );
 
 			break;
 		}
