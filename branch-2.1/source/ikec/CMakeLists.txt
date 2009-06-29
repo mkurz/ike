@@ -53,9 +53,10 @@ add_executable(
 target_link_libraries(
 	ikec
 	ike
-        idb
-        ith
-        log
+	idb
+	ith
+	log
+	crypto
 	pthread
 	${QT_LIBRARIES} )
 
