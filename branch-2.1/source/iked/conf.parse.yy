@@ -49,14 +49,6 @@
 #include "iked.h"
 #include "conf.parse.hpp"
 
-#define YY_DECL                                     \
-    yy::conf_parser::token_type                     \
-    yylex( yy::conf_parser::semantic_type * yylval, \
-    yy::conf_parser::location_type * yylloc,        \
-    IKED & iked )
-
-YY_DECL;
-
 %}
 
 // The parsing context.
@@ -74,6 +66,14 @@ YY_DECL;
 };
 
 %{
+
+#define YY_DECL                                     \
+    yy::conf_parser::token_type                     \
+    yylex( yy::conf_parser::semantic_type * yylval, \
+    yy::conf_parser::location_type * yylloc,        \
+    IKED & iked )
+
+YY_DECL;
 
 IDB_PEER *		peer;
 IKE_PROPOSAL		proposal;
