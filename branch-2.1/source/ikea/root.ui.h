@@ -318,20 +318,27 @@ void root::ImportSite()
 {
 	// get the input path
 
-        QString types(
-                "OpenSSL Files (*.vpn);;"
-                "All files (*)" );
+	QString types(
+		"Shrew Soft VPN file (*.vpn);;"
+		"Cisco PCF file (*.pcf);;"
+		"All files (*)" );
 
-        QFileDialog f( this );
-        f.setFilters( types );
+	QFileDialog f( this );
+	f.setFilters( types );
 
-        if( f.exec() != QDialog::Accepted )
+	if( f.exec() != QDialog::Accepted )
 		return;
 
 	// load the site config
 
 	CONFIG config;
-	config.file_read( f.selectedFile().ascii() );
+
+	bool need_certs = false;
+
+	if( !f.selectedFile().contains( ".pcf", false ) )
+		config.file_read( f.selectedFile().ascii() );
+	else
+		config.file_import_pcf( f.selectedFile().ascii(), need_certs );
 
 	// modify for import
 
@@ -453,6 +460,21 @@ void root::ImportSite()
 	i->setRenameEnabled( true );
 	i->setText( tmpname );
 	selected = tmpname;
+
+	if( need_certs )
+	{
+		QMessageBox m;
+
+		m.warning( this,
+			"Site Import Warning",
+			"The Cisco site configuration was imported but uses "
+			"an RSA authentication method. You will need to import "
+			"a certificate manually to complete the configuration.",
+			QMessageBox::Ok,
+			QMessageBox::NoButton,
+			QMessageBox::NoButton );
+	}
+
 	i->rename();
 }
 
@@ -476,7 +498,7 @@ void root::ExportSite()
 	// get the output path
 
         QString types(
-                "OpenSSL Files (*.vpn);;"
+                "Shrew Soft VPN file (*.vpn);;"
                 "All files (*)" );
 
         QFileDialog f( this );

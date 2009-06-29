@@ -58,9 +58,10 @@ add_executable(
 
 target_link_libraries(
 	ikea
-        idb
-        ith
-        log
+	idb
+	ith
+	log
+	crypto
 	pthread
 	${QT_LIBRARIES} )
 
@@ -68,10 +69,10 @@ target_link_libraries(
 
 add_custom_command(  
 	SOURCE ${IMG_FILES}
-        COMMAND ${QT_UIC_EXECUTABLE}
-        ARGS -embed ikea ${IMG_FILES} -o images.cxx
-        TARGET ikea
-        OUTPUTS images.cxx )
+	COMMAND ${QT_UIC_EXECUTABLE}
+	ARGS -embed ikea ${IMG_FILES} -o images.cxx
+	TARGET ikea
+	OUTPUTS images.cxx )
 
 # install support
 

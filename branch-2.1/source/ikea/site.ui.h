@@ -52,6 +52,7 @@
 #define AUTH_MUTUAL_PSK		5
 
 #define IDTXT_NONE	"No Identity"
+#define IDTXT_ANY	"Any"
 #define IDTXT_ASN1	"ASN.1 Distinguished Name"
 #define IDTXT_FQDN	"Fully Qualified Domain Name"
 #define IDTXT_UFQDN	"User Fully Qualified Domain Name"
@@ -545,6 +546,9 @@ bool site::Load( CONFIG & config )
 	if( config.get_string( "ident-server-type",
 		text, MAX_CONFSTRING, 0 ) )
 	{
+		if( !strcmp( "any", text ) )
+			combobox_setbytext( IDTXT_ANY, comboBoxRemoteIDType );
+
 		if( !strcmp( "asn1dn", text ) )
 			combobox_setbytext( IDTXT_ASN1, comboBoxRemoteIDType );
 
@@ -1015,6 +1019,10 @@ bool site::Save( CONFIG & config )
 
 	QString rmtid = comboBoxRemoteIDType->currentText();
 
+	if( !rmtid.compare( IDTXT_ANY ) )
+		config.set_string( "ident-server-type",
+			"any", strlen( "any" ) );
+
 	if( !rmtid.compare( IDTXT_ASN1 ) )
 		config.set_string( "ident-server-type",
 			"asn1dn", strlen( "asn1dn" ) );
@@ -1235,17 +1243,19 @@ bool site::Verify()
 
 	// check local id data
 
-	if( !comboBoxLocalIDType->currentText().compare( IDTXT_ADDR ) )
-		if( lineEditLocalIDData->isEnabled() )
-			if( lineEditLocalIDData->text().length() < 1 )
-				errmsg = "Please enter valid local ID address data.";
+	bool isaddr_l = ( comboBoxLocalIDType->currentText().compare( IDTXT_ADDR ) == 0 );
+
+	if( isaddr_l && lineEditLocalIDData->isEnabled() )
+		if( lineEditLocalIDData->text().length() < 1 )
+			errmsg = "Please enter valid local ID address data.";
 
 	// check remote id data
 
-	if( !comboBoxRemoteIDType->currentText().compare( IDTXT_ADDR ) )
-		if( lineEditRemoteIDData->isEnabled() )
-			if( lineEditRemoteIDData->text().length() < 1 )
-				errmsg = "Please enter valid remote ID address data.";
+	bool isaddr_r = ( comboBoxRemoteIDType->currentText().compare( IDTXT_ADDR ) == 0 );
+
+	if( isaddr_r && lineEditRemoteIDData->isEnabled() )
+		if( lineEditRemoteIDData->text().length() < 1 )
+			errmsg = "Please enter valid remote ID address data.";
 
 	// check cert authority file
 
@@ -1289,6 +1299,29 @@ bool site::Verify()
 			QMessageBox::NoButton );
 
 		return false;
+	}
+
+	if( comboBoxP1Exchange->currentItem() == EXCH_MAIN_MODE )
+	{
+		if( !isaddr_l || !isaddr_r )
+		{
+			long index = comboBoxAuthMethod->currentItem();
+
+			if( ( index == AUTH_MUTUAL_PSK_XAUTH ) ||
+				( index == AUTH_MUTUAL_PSK ) )
+			{
+				QMessageBox m;
+
+				m.warning( this,
+					"Site Configuration Warning",
+					"Main mode and Pre-Shared Keys should be used with Address "
+					"ID types. While some gateways require alternate ID types, "
+					"use them with caution.",
+					QMessageBox::Ok,
+					QMessageBox::NoButton,
+					QMessageBox::NoButton );
+			}
+		}
 	}
 
 	return true;
@@ -1502,8 +1535,6 @@ void site::UpdateAuthentication()
 		{
 			comboBoxLocalIDType->clear();
 
-			// main or aggressive mode
-
 //			comboBoxLocalIDType->insertItem( IDTXT_NONE );
 			comboBoxLocalIDType->insertItem( IDTXT_FQDN );
 			comboBoxLocalIDType->insertItem( IDTXT_UFQDN );
@@ -1518,24 +1549,11 @@ void site::UpdateAuthentication()
 		{
 			comboBoxLocalIDType->clear();
 
-			if( comboBoxP1Exchange->currentItem() == EXCH_AGGR_MODE )
-			{
-				// aggressive mode
-
-				comboBoxLocalIDType->insertItem( IDTXT_ASN1 );
-				comboBoxLocalIDType->insertItem( IDTXT_FQDN );
-				comboBoxLocalIDType->insertItem( IDTXT_UFQDN );
-				comboBoxLocalIDType->insertItem( IDTXT_ADDR );
-				comboBoxLocalIDType->insertItem( IDTXT_KEYID );
-			}
-
-			if( comboBoxP1Exchange->currentItem() == EXCH_MAIN_MODE )
-			{
-				// main mode
-
-				comboBoxLocalIDType->insertItem( IDTXT_ASN1 );
-				comboBoxLocalIDType->insertItem( IDTXT_ADDR );
-			}
+			comboBoxLocalIDType->insertItem( IDTXT_ASN1 );
+			comboBoxLocalIDType->insertItem( IDTXT_FQDN );
+			comboBoxLocalIDType->insertItem( IDTXT_UFQDN );
+			comboBoxLocalIDType->insertItem( IDTXT_ADDR );
+			comboBoxLocalIDType->insertItem( IDTXT_KEYID );
 
 			break;
 		}
@@ -1545,22 +1563,10 @@ void site::UpdateAuthentication()
 		{
 			comboBoxLocalIDType->clear();
 
-			if( comboBoxP1Exchange->currentItem() == EXCH_AGGR_MODE )
-			{
-				// aggressive mode
-
-				comboBoxLocalIDType->insertItem( IDTXT_FQDN );
-				comboBoxLocalIDType->insertItem( IDTXT_UFQDN );
-				comboBoxLocalIDType->insertItem( IDTXT_ADDR );
-				comboBoxLocalIDType->insertItem( IDTXT_KEYID );
-			}
-
-			if( comboBoxP1Exchange->currentItem() == EXCH_MAIN_MODE )
-			{
-				// main mode
-
-				comboBoxLocalIDType->insertItem( IDTXT_ADDR );
-			}
+			comboBoxLocalIDType->insertItem( IDTXT_FQDN );
+			comboBoxLocalIDType->insertItem( IDTXT_UFQDN );
+			comboBoxLocalIDType->insertItem( IDTXT_ADDR );
+			comboBoxLocalIDType->insertItem( IDTXT_KEYID );
 
 			break;
 		}
@@ -1587,24 +1593,12 @@ void site::UpdateAuthentication()
 		{
 			comboBoxRemoteIDType->clear();
 
-			if( comboBoxP1Exchange->currentItem() == EXCH_AGGR_MODE )
-			{
-				// aggressive mode
-
-				comboBoxRemoteIDType->insertItem( IDTXT_ASN1 );
-				comboBoxRemoteIDType->insertItem( IDTXT_FQDN );
-				comboBoxRemoteIDType->insertItem( IDTXT_UFQDN );
-				comboBoxRemoteIDType->insertItem( IDTXT_ADDR );
-				comboBoxRemoteIDType->insertItem( IDTXT_KEYID );
-			}
-
-			if( comboBoxP1Exchange->currentItem() == EXCH_MAIN_MODE )
-			{
-				// main mode
-
-				comboBoxRemoteIDType->insertItem( IDTXT_ASN1 );
-				comboBoxRemoteIDType->insertItem( IDTXT_ADDR );
-			}
+			comboBoxRemoteIDType->insertItem( IDTXT_ANY );
+			comboBoxRemoteIDType->insertItem( IDTXT_ASN1 );
+			comboBoxRemoteIDType->insertItem( IDTXT_FQDN );
+			comboBoxRemoteIDType->insertItem( IDTXT_UFQDN );
+			comboBoxRemoteIDType->insertItem( IDTXT_ADDR );
+			comboBoxRemoteIDType->insertItem( IDTXT_KEYID );
 
 			break;
 		}
@@ -1614,22 +1608,11 @@ void site::UpdateAuthentication()
 		{
 			comboBoxRemoteIDType->clear();
 
-			if( comboBoxP1Exchange->currentItem() == EXCH_AGGR_MODE )
-			{
-				// aggressive mode
-
-				comboBoxRemoteIDType->insertItem( IDTXT_FQDN );
-				comboBoxRemoteIDType->insertItem( IDTXT_UFQDN );
-				comboBoxRemoteIDType->insertItem( IDTXT_ADDR );
-				comboBoxRemoteIDType->insertItem( IDTXT_KEYID );
-			}
-
-			if( comboBoxP1Exchange->currentItem() == EXCH_MAIN_MODE )
-			{
-				// main mode
-
-				comboBoxRemoteIDType->insertItem( IDTXT_ADDR );
-			}
+			comboBoxRemoteIDType->insertItem( IDTXT_ANY );
+			comboBoxRemoteIDType->insertItem( IDTXT_FQDN );
+			comboBoxRemoteIDType->insertItem( IDTXT_UFQDN );
+			comboBoxRemoteIDType->insertItem( IDTXT_ADDR );
+			comboBoxRemoteIDType->insertItem( IDTXT_KEYID );
 
 			break;
 		}
@@ -1771,6 +1754,14 @@ void site::UpdateLocalID()
 void site::UpdateRemoteID()
 {
 	QString type = comboBoxRemoteIDType->currentText();
+
+	if( !type.compare( IDTXT_ANY ) )
+	{
+		textLabelRemoteIDData->setText( "" );
+		lineEditRemoteIDData->setEnabled( false );
+		checkBoxRemoteIDOption->setHidden( true );
+		return;
+	}
 
 	if( !type.compare( IDTXT_ASN1 ) )
 	{
