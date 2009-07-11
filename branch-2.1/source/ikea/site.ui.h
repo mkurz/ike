@@ -48,8 +48,8 @@
 #define AUTH_HYBRID_GRP_XAUTH	1
 #define AUTH_MUTUAL_RSA_XAUTH	2
 #define AUTH_MUTUAL_PSK_XAUTH	3
-#define AUTH_MUTUAL_RSA		4
-#define AUTH_MUTUAL_PSK		5
+#define AUTH_MUTUAL_RSA			4
+#define AUTH_MUTUAL_PSK			5
 
 #define IDTXT_NONE	"No Identity"
 #define IDTXT_ANY	"Any"
@@ -954,7 +954,7 @@ bool site::Save( CONFIG & config )
 
 		case AUTH_HYBRID_GRP_XAUTH:
 			config.set_string( "auth-method",
-				"hybrid-rsa-xauth", strlen( "hybrid-grp-xauth" ) );
+				"hybrid-grp-xauth", strlen( "hybrid-grp-xauth" ) );
 			break;
 
 		case AUTH_MUTUAL_RSA_XAUTH:

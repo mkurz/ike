@@ -64,10 +64,10 @@ target_link_libraries(
 
 add_custom_command(  
 	SOURCE ${IMG_FILES}
-        COMMAND ${QT_UIC_EXECUTABLE}
-        ARGS -embed ikec ${IMG_FILES} -o images.cxx
-        TARGET ikec
-        OUTPUTS images.cxx )
+	COMMAND ${QT_UIC_EXECUTABLE}
+	ARGS -embed ikec ${IMG_FILES} -o images.cxx
+	TARGET ikec
+	OUTPUTS images.cxx )
 
 # install support
 
