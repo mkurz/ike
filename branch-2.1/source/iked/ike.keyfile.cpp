@@ -45,10 +45,16 @@
 // opsenssl version compatibility
 //
 
-#if OPENSSL_VERSION_NUMBER < 0x0090800fL
-# define X509CONST
+#if OPENSSL_VERSION_NUMBER >= 0x00908000L
+# define D2I_X509_CONST const
 #else
-# define X509CONST const
+# define D2I_X509_CONST 
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x00907000L
+# define D2I_RSA_CONST const
+#else
+# define D2I_RSA_CONST 
 #endif
 
 // openssl password callback
@@ -79,9 +85,20 @@ bool _IKED::cert_2_bdata( BDATA & cert, X509 * x509 )
 	return true;
 }
 
+bool bdata_2_cert( X509 ** x509, BDATA & cert )
+{
+	D2I_X509_CONST unsigned char * cert_buff = cert.buff();
+
+	*x509 = d2i_X509( NULL, &cert_buff, ( long ) cert.size() );
+	if( *x509 == NULL )
+		return false;
+
+	return true;
+}
+
 bool _IKED::bdata_2_cert( X509 ** x509, BDATA & cert )
 {
-	X509CONST unsigned char * cert_buff = cert.buff();
+	D2I_X509_CONST unsigned char * cert_buff = cert.buff();
 
 	*x509 = d2i_X509( NULL, &cert_buff, ( long ) cert.size() );
 	if( *x509 == NULL )
@@ -278,24 +295,29 @@ bool _IKED::asn1_text( BDATA & data, BDATA & text )
 {
 	X509_NAME * x509_name = NULL;
 
-	X509CONST unsigned char * buff = data.buff();
+	D2I_X509_CONST unsigned char * buff = data.buff();
 	if( buff == NULL )
 		return false;
 
 	d2i_X509_NAME( &x509_name, &buff, ( long ) data.size() );
-
 	if( x509_name == NULL )
 		return false;
 
-	char name[ 512 ];
-	X509_NAME_oneline(
-		x509_name,
-		name,
-		512 );
+	BIO * bio = BIO_new( BIO_s_mem() );
+	if( bio == NULL )
+	{
+		X509_NAME_free( x509_name );
+		return false;
+	}
 
-	text.set( name, strlen( name ) );
+	X509_NAME_print_ex( bio, x509_name, 0, XN_FLAG_SEP_COMMA_PLUS );
+
+	unsigned char * bio_buff = NULL;
+	int bio_size = BIO_get_mem_data( bio, &bio_buff );
+	text.set( bio_buff, bio_size );
 
 	X509_NAME_free( x509_name );
+	BIO_free( bio );
 
 	return true;
 }
@@ -544,8 +566,56 @@ static int verify_cb( int ok, X509_STORE_CTX * store_ctx )
 	return ok;
 }
 
+STACK_OF( X509 ) * build_cert_stack( IDB_LIST_CERT & certs, BDATA & leaf )
+{
+	STACK_OF( X509 ) * chain = sk_X509_new_null();
+	leaf.del();
+
+	uint8_t type1;
+	BDATA cert1;
+	long index1 = 0;
+
+	while( certs.get( type1, cert1, index1++ ) )
+	{
+		X509 * x509_cert1;
+		if( !bdata_2_cert( &x509_cert1, cert1 ) )
+			continue;
+
+		unsigned long hash1 = X509_subject_name_hash( x509_cert1 );
+
+		if( leaf.size() )
+			continue;
+
+		uint8_t type2;
+		BDATA cert2;
+		long index2 = 0;
+
+		while( certs.get( type2, cert2, index2++ ) )
+		{
+			X509 * x509_cert2;
+			if( !bdata_2_cert( &x509_cert2, cert2 ) )
+				continue;
+
+			unsigned long hash2 = X509_issuer_name_hash( x509_cert2 );
+
+			if( hash1 == hash2 )
+				break;
+		}
+
+		if( index2 <= certs.count() )
+			sk_X509_push( chain, x509_cert1 );	
+		else
+			leaf = cert1;
+	}
+
+	return chain;
+}
+
+
 bool _IKED::cert_verify( IDB_LIST_CERT & certs, BDATA & ca, BDATA & cert )
 {
+	int result = 0;
+
 	//
 	// create certificate storage
 	//
@@ -609,35 +679,11 @@ bool _IKED::cert_verify( IDB_LIST_CERT & certs, BDATA & ca, BDATA & cert )
 	// create certificate chain
 	//
 
-	STACK_OF( X509 ) * chain = sk_X509_new_null();
+	STACK_OF( X509 ) * chain = build_cert_stack( certs, cert );
+
 	X509 * x509_cert;
-
-	uint8_t type;
-	long index = 0;
-	while( certs.get( type, cert, index++ ) )
-		if( bdata_2_cert( &x509_cert, cert ) )
-			sk_X509_push( chain, x509_cert );
-
-	long result = 0;
-
-	if( sk_X509_num( chain ) > 0 )
+	if( bdata_2_cert( &x509_cert, cert ) )
 	{
-		//
-		// sort the certificate chain if more
-		// than one element exists
-		//
-
-//		if( sk_X509_num( chain ) > 1 )
-//			sk_sort( chain );
-
-		//
-		// get the first cert in the chain and
-		// store it for our caller
-		//
-
-		x509_cert = sk_X509_value( chain, 0 );
-		cert_2_bdata( cert, x509_cert );
-
 		//
 		// create our store context
 		//
@@ -660,6 +706,8 @@ bool _IKED::cert_verify( IDB_LIST_CERT & certs, BDATA & ca, BDATA & cert )
 			result = X509_verify_cert( store_ctx );
 			X509_STORE_CTX_cleanup( store_ctx );
 		}
+
+		X509_free( x509_cert );
 	}
 
 	//
