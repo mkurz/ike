@@ -617,8 +617,10 @@ typedef struct _IKE_PEER
 
 typedef struct _IKE_XAUTH
 {
-	BDATA	user;
-	BDATA	pass;
+	uint16_t	type;
+	BDATA		user;
+	BDATA		pass;
+	BDATA		hash;
 
 	BDATA	context;
 
