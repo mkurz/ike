@@ -1408,7 +1408,6 @@ bool _IKED::config_server_xconf_push_send( IDB_CFG * cfg, IDB_PH1 * ph1 )
 	return false;
 }
 
-
 long _IKED::config_xconf_set( IDB_CFG * cfg, long & setmask, long nullmask, VENDOPTS vendopts )
 {
 	//
@@ -1559,21 +1558,6 @@ long _IKED::config_xconf_set( IDB_CFG * cfg, long & setmask, long nullmask, VEND
 
 	if( !vendopts.flag.unity )
 	{
-		cfg->attr_add_v( APPLICATION_VERSION,
-			UNITY_APP_VERSION_STRING,
-			strlen( UNITY_APP_VERSION_STRING ) );
-
-		log.txt( LLOG_DEBUG,
-			"ii : - Application Version = %s\n",
-			UNITY_APP_VERSION_STRING );
-
-		cfg->attr_add_v( UNITY_FW_TYPE,
-			unity_fwtype.buff(),
-			unity_fwtype.size() );
-
-		log.txt( LLOG_DEBUG,
-			"ii : - Firewall Type = CISCO-UNKNOWN\n" );
-
 		if( setmask & IPSEC_OPTS_SPLITNET )
 		{
 			if( nullmask & IPSEC_OPTS_SPLITNET )
@@ -1822,7 +1806,23 @@ long _IKED::config_xconf_set( IDB_CFG * cfg, long & setmask, long nullmask, VEND
 					cfg->tunnel->xconf.svpw );
 			}
 		}
+
+		cfg->attr_add_v( APPLICATION_VERSION,
+			UNITY_APP_VERSION_STRING,
+			strlen( UNITY_APP_VERSION_STRING ) );
+
+		log.txt( LLOG_DEBUG,
+			"ii : - Application Version = %s\n",
+			UNITY_APP_VERSION_STRING );
+
+		cfg->attr_add_v( UNITY_FW_TYPE,
+			unity_fwtype.buff(),
+			unity_fwtype.size() );
+
+		log.txt( LLOG_DEBUG,
+			"ii : - Firewall Type = CISCO-UNKNOWN\n" );
 	}
+
 	//
 	// checkpoint attributes
 	//
@@ -1923,35 +1923,6 @@ long _IKED::config_xconf_get( IDB_CFG * cfg, long & getmask, long readmask, VEND
 				break;
 			}
 
-			case INTERNAL_ADDRESS_EXPIRY:
-			{
-				getmask |= IPSEC_OPTS_ADDR;
-
-				if( ( readmask & IPSEC_OPTS_ADDR ) && attr->vdata.size() )
-				{
-					if( attr->vdata.size() != 4 )
-					{
-						log.txt( LLOG_ERROR,
-							"!! : - Address Expiry has invalid size ( %i bytes )\n",
-							attr->vdata.size() );
-
-						break;
-					}
-
-					memcpy(
-						&cfg->tunnel->xconf.expi,
-						attr->vdata.buff(), 4 );
-
-					log.txt( LLOG_DEBUG,
-						"ii : - Address Expiry = %i\n",
-						 cfg->tunnel->xconf.expi );
-				}
-				else
-					log.txt( LLOG_DEBUG, "ii : - Address Expiry\n" );
-
-				break;
-			}
-
 			case INTERNAL_IP4_NETMASK:
 			{
 				getmask |= IPSEC_OPTS_MASK;
@@ -1980,6 +1951,43 @@ long _IKED::config_xconf_get( IDB_CFG * cfg, long & getmask, long readmask, VEND
 				}
 				else
 					log.txt( LLOG_DEBUG,	"ii : - IP4 Netmask\n" );
+
+				break;
+			}
+
+			case INTERNAL_IP4_DNS:
+			{
+				getmask |= IPSEC_OPTS_DNSS;
+
+				if( ( readmask & IPSEC_OPTS_DNSS ) && attr->vdata.size() )
+				{
+					if( cfg->tunnel->xconf.nscfg.dnss_count < IPSEC_DNSS_MAX )
+					{
+						if( attr->vdata.size() != 4 )
+						{
+							log.txt( LLOG_ERROR,
+								"!! : - IP4 DNS Server has invalid size ( %i bytes )\n",
+								attr->vdata.size() );
+
+							break;
+						}
+
+						memcpy(
+							&cfg->tunnel->xconf.nscfg.dnss_list[ cfg->tunnel->xconf.nscfg.dnss_count ],
+							attr->vdata.buff(), 4 );
+
+						char txtaddr[ LIBIKE_MAX_TEXTADDR ];
+						text_addr( txtaddr, cfg->tunnel->xconf.nscfg.dnss_list[ cfg->tunnel->xconf.nscfg.dnss_count ] );
+
+						cfg->tunnel->xconf.nscfg.dnss_count++;
+
+						log.txt( LLOG_DEBUG,
+							"ii : - IP4 DNS Server = %s\n",
+							txtaddr );
+					}
+				}
+				else
+					log.txt( LLOG_DEBUG, "ii : - IP4 DNS Server\n" );
 
 				break;
 			}
@@ -2021,39 +2029,48 @@ long _IKED::config_xconf_get( IDB_CFG * cfg, long & getmask, long readmask, VEND
 				break;
 			}
 
-			case INTERNAL_IP4_DNS:
+			case INTERNAL_ADDRESS_EXPIRY:
 			{
-				getmask |= IPSEC_OPTS_DNSS;
+				getmask |= IPSEC_OPTS_ADDR;
 
-				if( ( readmask & IPSEC_OPTS_DNSS ) && attr->vdata.size() )
+				if( ( readmask & IPSEC_OPTS_ADDR ) && attr->vdata.size() )
 				{
-					if( cfg->tunnel->xconf.nscfg.dnss_count < IPSEC_DNSS_MAX )
+					if( attr->vdata.size() != 4 )
 					{
-						if( attr->vdata.size() != 4 )
-						{
-							log.txt( LLOG_ERROR,
-								"!! : - IP4 DNS Server has invalid size ( %i bytes )\n",
-								attr->vdata.size() );
+						log.txt( LLOG_ERROR,
+							"!! : - Address Expiry has invalid size ( %i bytes )\n",
+							attr->vdata.size() );
 
-							break;
-						}
-
-						memcpy(
-							&cfg->tunnel->xconf.nscfg.dnss_list[ cfg->tunnel->xconf.nscfg.dnss_count ],
-							attr->vdata.buff(), 4 );
-
-						char txtaddr[ LIBIKE_MAX_TEXTADDR ];
-						text_addr( txtaddr, cfg->tunnel->xconf.nscfg.dnss_list[ cfg->tunnel->xconf.nscfg.dnss_count ] );
-
-						cfg->tunnel->xconf.nscfg.dnss_count++;
-
-						log.txt( LLOG_DEBUG,
-							"ii : - IP4 DNS Server = %s\n",
-							txtaddr );
+						break;
 					}
+
+					memcpy(
+						&cfg->tunnel->xconf.expi,
+						attr->vdata.buff(), 4 );
+
+					log.txt( LLOG_DEBUG,
+						"ii : - Address Expiry = %i\n",
+						 cfg->tunnel->xconf.expi );
 				}
 				else
-					log.txt( LLOG_DEBUG, "ii : - IP4 DNS Server\n" );
+					log.txt( LLOG_DEBUG, "ii : - Address Expiry\n" );
+
+				break;
+			}
+
+			case APPLICATION_VERSION:
+			{
+				if( attr->vdata.size() )
+				{
+					BDATA appver =  attr->vdata;
+					appver.add( "", 1 );
+
+					log.txt( LLOG_DEBUG,
+						"ii : - Application Version = %s\n",
+						appver.text() );
+				}
+				else
+					log.txt( LLOG_DEBUG, "ii : - Application Version\n" );
 
 				break;
 			}
@@ -2134,6 +2151,22 @@ long _IKED::config_xconf_get( IDB_CFG * cfg, long & getmask, long readmask, VEND
 
 			switch( attr->atype )
 			{
+				case UNITY_FW_TYPE:
+				{
+					if( attr->vdata.size() )
+					{
+						BDATA fwtype =  attr->vdata;
+
+						log.txt( LLOG_DEBUG,
+							"ii : - Firewall Type = %i bytes\n",
+							attr->vdata.size() );
+					}
+					else
+						log.txt( LLOG_DEBUG, "ii : - Firewall Type\n" );
+
+					break;
+				}
+
 				case UNITY_DEF_DOMAIN:
 				{
 					getmask |= IPSEC_OPTS_DOMAIN;
