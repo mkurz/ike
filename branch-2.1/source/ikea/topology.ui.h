@@ -66,9 +66,9 @@ void topology::TopologyAccept()
 
 	if( ( mask != 0 ) && ( mask != ( in_addr_t ) ~0 ) )
 	{
-		long bitset = 0;
-		long bitclr = 0;
 		long count = 31;
+		long bitset = 31;
+		long bitclr = 0;
 
 		while( count >= 0 )
 		{
@@ -77,7 +77,7 @@ void topology::TopologyAccept()
 			else
 				bitclr = count;
 
-			if( ( !bitset && !count ) || ( bitclr > bitset ) )
+			if( bitclr > bitset )
 			{
 				// error
 
