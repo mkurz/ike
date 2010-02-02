@@ -583,9 +583,6 @@ STACK_OF( X509 ) * build_cert_stack( IDB_LIST_CERT & certs, BDATA & leaf )
 
 		unsigned long hash1 = X509_subject_name_hash( x509_cert1 );
 
-		if( leaf.size() )
-			continue;
-
 		uint8_t type2;
 		BDATA cert2;
 		long index2 = 0;
@@ -602,7 +599,7 @@ STACK_OF( X509 ) * build_cert_stack( IDB_LIST_CERT & certs, BDATA & leaf )
 				break;
 		}
 
-		if( index2 <= certs.count() )
+		if( index2 < certs.count() )
 			sk_X509_push( chain, x509_cert1 );	
 		else
 			leaf = cert1;
@@ -610,7 +607,6 @@ STACK_OF( X509 ) * build_cert_stack( IDB_LIST_CERT & certs, BDATA & leaf )
 
 	return chain;
 }
-
 
 bool _IKED::cert_verify( IDB_LIST_CERT & certs, BDATA & ca, BDATA & cert )
 {
