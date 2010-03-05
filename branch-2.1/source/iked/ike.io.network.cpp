@@ -66,14 +66,6 @@ long _IKED::loop_ike_nwork()
 		//
 
 		long result = socket_select( 500 );
-
-		if( result == LIBIKE_SOCKET )
-		{
-			log.txt( LLOG_ERROR, "!! : hard socket error\n" );
-			socket_done();
-			continue;
-		}
-
 		if( result <= 0 )
 			continue;
 
