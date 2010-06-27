@@ -881,22 +881,6 @@
                 <attribute name="title">
                     <string>Authentication</string>
                 </attribute>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>textLabelAuthMethod</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>10</x>
-                            <y>10</y>
-                            <width>110</width>
-                            <height>21</height>
-                        </rect>
-                    </property>
-                    <property name="text">
-                        <string>Authentication Method</string>
-                    </property>
-                </widget>
                 <widget class="QTabWidget">
                     <property name="name">
                         <cstring>tabWidgetAuthInfo</cstring>
@@ -1311,6 +1295,22 @@
                         </widget>
                     </widget>
                 </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>textLabelAuthMethod</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>10</x>
+                            <y>10</y>
+                            <width>110</width>
+                            <height>21</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>Authentication Method</string>
+                    </property>
+                </widget>
                 <widget class="QComboBox">
                     <item>
                         <property name="text">
@@ -1362,6 +1362,25 @@
                 <attribute name="title">
                     <string>Phase 1</string>
                 </attribute>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkBoxCheckpointID</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>10</x>
+                            <y>250</y>
+                            <width>250</width>
+                            <height>21</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>Enable Check Point Compatible Vendor ID</string>
+                    </property>
+                    <property name="checked">
+                        <bool>false</bool>
+                    </property>
+                </widget>
                 <widget class="QGroupBox">
                     <property name="name">
                         <cstring>groupBoxP1Proposal</cstring>
@@ -1503,22 +1522,6 @@
                         </property>
                         <property name="text">
                             <string>DH Exchange</string>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabelP1Exchange</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>10</x>
-                                <y>20</y>
-                                <width>100</width>
-                                <height>21</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Exchange Type</string>
                         </property>
                     </widget>
                     <widget class="QComboBox">
@@ -1779,6 +1782,38 @@
                             </rect>
                         </property>
                     </widget>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>textLabelLifeData</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>10</x>
+                                <y>200</y>
+                                <width>100</width>
+                                <height>20</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string>Key Life Data Limit</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>textLabelP1Exchange</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>10</x>
+                                <y>20</y>
+                                <width>100</width>
+                                <height>21</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string>Exchange Type</string>
+                        </property>
+                    </widget>
                     <widget class="QComboBox">
                         <item>
                             <property name="text">
@@ -1802,41 +1837,6 @@
                             </rect>
                         </property>
                     </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>textLabelLifeData</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>10</x>
-                                <y>200</y>
-                                <width>100</width>
-                                <height>20</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Key Life Data Limit</string>
-                        </property>
-                    </widget>
-                </widget>
-                <widget class="QCheckBox">
-                    <property name="name">
-                        <cstring>checkBoxCheckpointID</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>10</x>
-                            <y>250</y>
-                            <width>250</width>
-                            <height>21</height>
-                        </rect>
-                    </property>
-                    <property name="text">
-                        <string>Enable Check Point Compatible Vendor ID</string>
-                    </property>
-                    <property name="checked">
-                        <bool>false</bool>
-                    </property>
                 </widget>
             </widget>
             <widget class="QWidget">
@@ -2388,6 +2388,55 @@
                             <string>Modify</string>
                         </property>
                     </widget>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>textLabelPolicyLevel</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>10</x>
+                                <y>20</y>
+                                <width>110</width>
+                                <height>21</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string>Policy Generation Level</string>
+                        </property>
+                    </widget>
+                    <widget class="QComboBox">
+                        <item>
+                            <property name="text">
+                                <string>auto</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>require</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>unique</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>shared</string>
+                            </property>
+                        </item>
+                        <property name="name">
+                            <cstring>comboBoxPolicyLevel</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>126</x>
+                                <y>20</y>
+                                <width>120</width>
+                                <height>21</height>
+                            </rect>
+                        </property>
+                    </widget>
                     <widget class="QCheckBox">
                         <property name="name">
                             <cstring>checkBoxPolicyAuto</cstring>
@@ -2395,7 +2444,7 @@
                         <property name="geometry">
                             <rect>
                                 <x>10</x>
-                                <y>40</y>
+                                <y>70</y>
                                 <width>240</width>
                                 <height>16</height>
                             </rect>
@@ -2442,9 +2491,9 @@
                         <property name="geometry">
                             <rect>
                                 <x>10</x>
-                                <y>61</y>
+                                <y>91</y>
                                 <width>241</width>
-                                <height>170</height>
+                                <height>140</height>
                             </rect>
                         </property>
                     </widget>
@@ -2455,7 +2504,7 @@
                         <property name="geometry">
                             <rect>
                                 <x>10</x>
-                                <y>20</y>
+                                <y>50</y>
                                 <width>240</width>
                                 <height>16</height>
                             </rect>
@@ -2697,6 +2746,7 @@
     <tabstop>lineEditPort</tabstop>
     <tabstop>comboBoxConfigMethod</tabstop>
     <tabstop>comboBoxAddressMethod</tabstop>
+    <tabstop>lineEditMTU</tabstop>
     <tabstop>checkBoxAddressAuto</tabstop>
     <tabstop>lineEditAddress</tabstop>
     <tabstop>lineEditNetmask</tabstop>
@@ -2731,6 +2781,7 @@
     <tabstop>comboBoxP1Hash</tabstop>
     <tabstop>lineEditP1LifeTime</tabstop>
     <tabstop>lineEditP1LifeData</tabstop>
+    <tabstop>checkBoxCheckpointID</tabstop>
     <tabstop>comboBoxP2Transform</tabstop>
     <tabstop>comboBoxP2Keylen</tabstop>
     <tabstop>comboBoxP2HMAC</tabstop>
@@ -2738,6 +2789,8 @@
     <tabstop>comboBoxP2Compress</tabstop>
     <tabstop>lineEditP2LifeTime</tabstop>
     <tabstop>lineEditP2LifeData</tabstop>
+    <tabstop>comboBoxPolicyLevel</tabstop>
+    <tabstop>checkBoxPolicyNailed</tabstop>
     <tabstop>checkBoxPolicyAuto</tabstop>
     <tabstop>listViewPolicies</tabstop>
     <tabstop>pushButtonPolicyAdd</tabstop>
@@ -2770,6 +2823,7 @@
     <slot>InputCertFile()</slot>
     <slot>InputPKeyFile()</slot>
     <slot>VerifyAccept()</slot>
+    <slot>UpdateAuthMethod()</slot>
 </slots>
 <functions>
     <function returnType="bool">Load( CONFIG &amp; config )</function>

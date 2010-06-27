@@ -482,7 +482,7 @@ bool site::Load( CONFIG & config )
 			comboBoxP1Exchange->setCurrentItem( EXCH_MAIN_MODE );
 	}
 
-	// authentication mode ( default hybrid rsa xauth )
+	// authentication method ( default hybrid rsa xauth )
 
 	if( config.get_string( "auth-method",
 		text, MAX_CONFSTRING, 0 ) )
@@ -505,6 +505,8 @@ bool site::Load( CONFIG & config )
 		if( !strcmp( "mutual-psk", text ) )
 			comboBoxAuthMethod->setCurrentItem( 5 );
 	}
+
+	UpdateAuthMethod();
 
 	// local identity type
 	//
@@ -686,6 +688,12 @@ bool site::Load( CONFIG & config )
 	if( config.get_number( "phase2-life-kbytes", &numb ) )
 		lineEditP2LifeData->setText( QString::number( numb, 10 ) );
 
+	// policy level option ( default auto )
+
+	if( config.get_string( "policy-level",
+		text, MAX_CONFSTRING, 0 ) )
+		combobox_setbytext( text, comboBoxPolicyLevel );
+
 	// policy nailed sa option ( defailt off )
 
 	numb = 0;
@@ -694,7 +702,6 @@ bool site::Load( CONFIG & config )
 		checkBoxPolicyNailed->setChecked( true );
 	else
 		checkBoxPolicyNailed->setChecked( false );
-		
 
 	// policy configuration ( default auto )
 
@@ -1177,6 +1184,12 @@ bool site::Save( CONFIG & config )
 		( char * ) comboBoxP2Compress->currentText().ascii(),
 		comboBoxP2Compress->currentText().length() );
 
+	// policy level option
+
+	config.set_string( "policy-level",
+		( char * ) comboBoxPolicyLevel->currentText().ascii(),
+		comboBoxP2Compress->currentText().length() );
+
 	// policy nailed sa option
 
 	if( !checkBoxPolicyNailed->isChecked() )
@@ -1518,15 +1531,16 @@ void site::UpdateNameResolution()
 	}
 }
 
-void site::UpdateAuthentication()
+void site::UpdateAuthMethod()
 {
 	// authentication method
 
 	long auth = comboBoxAuthMethod->currentItem();
 
-	// local identity
-
-	QString locid = comboBoxLocalIDType->currentText();
+	//
+	// populate the correct local identity types
+	// for the selected authentication method
+	//
 
 	switch( auth )
 	{
@@ -1572,17 +1586,10 @@ void site::UpdateAuthentication()
 		}
 	}
 
-	// attempt to select old value, reset on failure
-
-	if( !combobox_setbytext( ( char * ) locid.ascii(), comboBoxLocalIDType ) )
-	{
-		lineEditLocalIDData->clear();
-		checkBoxLocalIDOption->setChecked( true );
-	}
-
-	// remote identity
-
-	QString rmtid = comboBoxRemoteIDType->currentText();
+	//
+	// populate the correct remote identity types
+	// for the selected authentication method
+	//
 
 	switch( auth )
 	{
@@ -1618,7 +1625,26 @@ void site::UpdateAuthentication()
 		}
 	}
 
-	// attempt to select old value, reset on failure
+}
+
+void site::UpdateAuthentication()
+{
+	// grab the current local and remote id types
+
+	QString locid = comboBoxLocalIDType->currentText();
+	QString rmtid = comboBoxRemoteIDType->currentText();
+
+	// update the authentication method
+
+	UpdateAuthMethod();
+
+	// attempt to re-select the id types
+
+	if( !combobox_setbytext( ( char * ) locid.ascii(), comboBoxLocalIDType ) )
+	{
+		lineEditLocalIDData->clear();
+		checkBoxLocalIDOption->setChecked( true );
+	}
 
 	if( !combobox_setbytext( ( char * ) rmtid.ascii(), comboBoxRemoteIDType ) )
 	{
@@ -2038,4 +2064,3 @@ void site::VerifyAccept()
 
 	return;
 }
-
