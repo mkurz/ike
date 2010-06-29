@@ -29,5 +29,5 @@ set_target_properties(
 
 install(
 	TARGETS ike
-	LIBRARY DESTINATION lib )
+	LIBRARY DESTINATION ${PATH_LIB} )
 

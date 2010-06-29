@@ -27,5 +27,5 @@ set_target_properties(
 
 install(
 	TARGETS pfk
-	LIBRARY DESTINATION lib )
+	LIBRARY DESTINATION ${PATH_LIB} )
 

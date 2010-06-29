@@ -213,12 +213,13 @@ DEBUG	Enable Debug Symbols
 QTGUI	Enable Client QT GUI
 NATT	Enable Nat Traversal Support
 LDAP	Enable LDAP Authentication Support
-ETCDIR	System etc configuration path
-MANDIR	System man page path
+ETCDIR	Custom etc configuration install path
+LIBDIR	Custom user lirbrary install path
+MANDIR	Custom man page install path
 KRNINC	Kernel include path
 TESTS	Build library test programs
 
-For example: enter the following to build and install the software with all
+For example: enter the following to build and install the software with a few
 options enabled ...
 
 cmake -DDEBUG=YES -DQTGUI=YES -DNATT=YES -DLDAP=YES
@@ -314,6 +315,7 @@ s:phase2-hmac:auto|md5|sha1
 n:phase2-pfsgroup:-1|0|1|2|5|14|15 ( -1 = disabled, 0 = auto )
 n:phase2-life-secs:<life time>
 n:phase2-life-kbytes:<life KBytes>
+s:policy-level:auto|required|unique|shared
 n:policy-nailed:0|1 ( persistent IPsec SAs )
 n:policy-list-auto:0|1
 s:policy-list-exclude:<address/netmask list>
