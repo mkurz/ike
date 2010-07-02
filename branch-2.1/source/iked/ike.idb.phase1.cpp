@@ -852,11 +852,6 @@ bool _IDB_PH1::frag_get( PACKET_IKE & packet )
 		int list_count = frags.count();
 		int list_index = 0;
 
-		if( list_count == 5 )
-		{
-			iked.log.txt( LLOG_DEBUG, "XX : peas and carrots\n" );
-		}
-
 		for( ; list_index < list_count; list_index++ )
 		{
 			IKE_FRAG * frag = static_cast<IKE_FRAG*>( frags.get_entry( list_index ) );
