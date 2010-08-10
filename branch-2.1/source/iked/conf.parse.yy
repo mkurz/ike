@@ -108,6 +108,7 @@ IDB_LIST_PH2ID *	idlist;
 %token		LL_DECODE	"decode"
 %token		LOG_LEVEL	"log level"
 %token		LOG_FILE	"log file"
+%token		DHCP_FILE	"dhcp file"
 %token		PCAP_DECRYPT	"decrypted ike pcap dump file"
 %token		PCAP_ENCRYPT	"encrypted ike pcap dump file"
 %token		RETRY_COUNT	"retry count"
@@ -332,6 +333,12 @@ daemon_line
   |	LOG_FILE QUOTED
 	{
 		snprintf( iked.path_log, MAX_PATH, "%s", $2->text() );
+		delete $2;
+	}
+	EOS
+  |	DHCP_FILE QUOTED
+	{
+		snprintf( iked.path_dhcp, MAX_PATH, "%s", $2->text() );
 		delete $2;
 	}
 	EOS
