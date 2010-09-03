@@ -996,7 +996,7 @@ void _IKEC::run()
 		if( msgres == IKEI_RESULT_PASSWD )
 		{
 			FilePassData PassData;
-			PassData.filepath = text;
+			PassData.filepath = btext.text();
 			QApplication::postEvent( r, new FilePassEvent( &PassData ) );
 			while( PassData.result == -1 )
 				msleep( 10 );
@@ -1044,7 +1044,7 @@ void _IKEC::run()
 		if( msgres == IKEI_RESULT_PASSWD )
 		{
 			FilePassData PassData;
-			PassData.filepath = text;
+			PassData.filepath = btext.text();
 			QApplication::postEvent( r, new FilePassEvent( &PassData ) );
 			while( PassData.result == -1 )
 				msleep( 10 );
@@ -1088,7 +1088,7 @@ void _IKEC::run()
 		if( msgres == IKEI_RESULT_PASSWD )
 		{
 			FilePassData PassData;
-			PassData.filepath = text;
+			PassData.filepath = btext.text();
 			QApplication::postEvent( r, new FilePassEvent( &PassData ) );
 			while( PassData.result == -1 )
 				msleep( 10 );
