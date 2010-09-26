@@ -656,10 +656,6 @@ bool site::Load( CONFIG & config )
 	else
 		checkBoxCheckpointID->setChecked( false );
 
-	// update dialog
-
-	UpdatePhase2();
-
 	// phase2 trasform algorithm ( default auto )
 
 	if( config.get_string( "phase2-transform",
@@ -755,6 +751,8 @@ bool site::Load( CONFIG & config )
 
 	// update dialog
 
+	UpdatePhase1();
+	UpdatePhase2();
 	UpdatePolicy();
 
 	return true;
