@@ -210,7 +210,7 @@ void site::init()
 
 	UpdateGeneral();
 	UpdateAuthentication();
-	UpdatePhase1();
+//	UpdatePhase1();
 	UpdatePhase2();
 	UpdatePolicy();
 }
@@ -470,17 +470,9 @@ bool site::Load( CONFIG & config )
 		}
 	}
 
-	// phase1 exchange type ( default main )
+	// update dialog
 
-	if( config.get_string( "phase1-exchange",
-		text, MAX_CONFSTRING, 0 ) )
-	{
-		if( !strcmp( text, "aggressive" ) )
-			comboBoxP1Exchange->setCurrentItem( EXCH_AGGR_MODE );
-
-		if( !strcmp( text, "main" ) )
-			comboBoxP1Exchange->setCurrentItem( EXCH_MAIN_MODE );
-	}
+	UpdateGeneral();
 
 	// authentication method ( default hybrid rsa xauth )
 
@@ -506,11 +498,11 @@ bool site::Load( CONFIG & config )
 			comboBoxAuthMethod->setCurrentItem( 5 );
 	}
 
+	// update dialog
+
 	UpdateAuthMethod();
 
 	// local identity type
-	//
-	// NOTE : Requires phase1 exchange type & authentication mode
 
 	if( config.get_string( "ident-client-type",
 		text, MAX_CONFSTRING, 0 ) )
@@ -597,6 +589,26 @@ bool site::Load( CONFIG & config )
 		lineEditPSK->setText( psk.text() );
 	}
 
+	// update dialog
+
+	UpdateAuthentication();
+
+	// phase1 exchange type ( default main )
+
+	if( config.get_string( "phase1-exchange",
+		text, MAX_CONFSTRING, 0 ) )
+	{
+		if( !strcmp( text, "aggressive" ) )
+			comboBoxP1Exchange->setCurrentItem( EXCH_AGGR_MODE );
+
+		if( !strcmp( text, "main" ) )
+			comboBoxP1Exchange->setCurrentItem( EXCH_MAIN_MODE );
+	}
+
+	// update dialog
+
+	UpdatePhase1();
+
 	// phase1 dh group ( default auto )
 
 	numb = 0;
@@ -643,6 +655,10 @@ bool site::Load( CONFIG & config )
 		checkBoxCheckpointID->setChecked( true );
 	else
 		checkBoxCheckpointID->setChecked( false );
+
+	// update dialog
+
+	UpdatePhase2();
 
 	// phase2 trasform algorithm ( default auto )
 
@@ -739,10 +755,6 @@ bool site::Load( CONFIG & config )
 
 	// update dialog
 
-	UpdateGeneral();
-	UpdateAuthentication();
-	UpdatePhase1();
-	UpdatePhase2();
 	UpdatePolicy();
 
 	return true;
@@ -1920,8 +1932,6 @@ void site::UpdatePhase1()
 		comboBoxP1Keylen->setCurrentItem( 0 );
 	else
 		combobox_setbytext( ( char * ) text.ascii(), comboBoxP1Keylen );
-
-	UpdateAuthentication();
 }
 
 void site::UpdatePhase2()
