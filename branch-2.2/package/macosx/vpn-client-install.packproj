@@ -164,9 +164,9 @@
 														<key>GID</key>
 														<integer>80</integer>
 														<key>Path</key>
-														<string>../../source/libidb/ShrewSoftIdb.framework</string>
+														<string>/Library/Frameworks/ShrewSoftIdb.framework</string>
 														<key>Path Type</key>
-														<integer>2</integer>
+														<integer>1</integer>
 														<key>Privileges</key>
 														<integer>493</integer>
 														<key>Type</key>
@@ -180,9 +180,9 @@
 														<key>GID</key>
 														<integer>80</integer>
 														<key>Path</key>
-														<string>../../source/libike/ShrewSoftIke.framework</string>
+														<string>/Library/Frameworks/ShrewSoftIke.framework</string>
 														<key>Path Type</key>
-														<integer>2</integer>
+														<integer>1</integer>
 														<key>Privileges</key>
 														<integer>493</integer>
 														<key>Type</key>
@@ -196,9 +196,9 @@
 														<key>GID</key>
 														<integer>80</integer>
 														<key>Path</key>
-														<string>../../source/libip/ShrewSoftIp.framework</string>
+														<string>/Library/Frameworks/ShrewSoftIp.framework</string>
 														<key>Path Type</key>
-														<integer>2</integer>
+														<integer>1</integer>
 														<key>Privileges</key>
 														<integer>493</integer>
 														<key>Type</key>
@@ -212,9 +212,9 @@
 														<key>GID</key>
 														<integer>80</integer>
 														<key>Path</key>
-														<string>../../source/libith/ShrewSoftIth.framework</string>
+														<string>/Library/Frameworks/ShrewSoftIth.framework</string>
 														<key>Path Type</key>
-														<integer>2</integer>
+														<integer>1</integer>
 														<key>Privileges</key>
 														<integer>493</integer>
 														<key>Type</key>
@@ -228,9 +228,9 @@
 														<key>GID</key>
 														<integer>80</integer>
 														<key>Path</key>
-														<string>../../source/liblog/ShrewSoftLog.framework</string>
+														<string>/Library/Frameworks/ShrewSoftLog.framework</string>
 														<key>Path Type</key>
-														<integer>2</integer>
+														<integer>1</integer>
 														<key>Privileges</key>
 														<integer>493</integer>
 														<key>Type</key>
@@ -244,9 +244,9 @@
 														<key>GID</key>
 														<integer>80</integer>
 														<key>Path</key>
-														<string>../../source/libpfk/ShrewSoftPfkey.framework</string>
+														<string>/Library/Frameworks/ShrewSoftPfkey.framework</string>
 														<key>Path Type</key>
-														<integer>2</integer>
+														<integer>1</integer>
 														<key>Privileges</key>
 														<integer>493</integer>
 														<key>Type</key>
@@ -609,7 +609,7 @@
 							<key>Version</key>
 							<dict>
 								<key>IFMajorVersion</key>
-								<integer>1</integer>
+								<integer>2</integer>
 								<key>IFMinorVersion</key>
 								<integer>2</integer>
 							</dict>
@@ -1025,9 +1025,9 @@
 														<key>GID</key>
 														<integer>80</integer>
 														<key>Path</key>
-														<string>../../source/iked/iked</string>
+														<string>/usr/sbin/iked</string>
 														<key>Path Type</key>
-														<integer>2</integer>
+														<integer>1</integer>
 														<key>Privileges</key>
 														<integer>493</integer>
 														<key>Type</key>
@@ -1694,9 +1694,9 @@
 														<key>GID</key>
 														<integer>80</integer>
 														<key>Path</key>
-														<string>../../source/ikec/ikec</string>
+														<string>/usr/bin/ikec</string>
 														<key>Path Type</key>
-														<integer>2</integer>
+														<integer>1</integer>
 														<key>Privileges</key>
 														<integer>493</integer>
 														<key>Type</key>
@@ -1948,7 +1948,7 @@
 								<key>IFPkgFlagFollowLinks</key>
 								<false/>
 								<key>IFPkgFlagIsRequired</key>
-								<false/>
+								<true/>
 								<key>IFPkgFlagOverwritePermissions</key>
 								<false/>
 								<key>IFPkgFlagRelocatable</key>
@@ -2050,9 +2050,9 @@
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
-												<string>../../source/qikea/Shrew Soft VPN Access Manager.app</string>
+												<string>/Applications/Shrew Soft VPN Access Manager.app</string>
 												<key>Path Type</key>
-												<integer>2</integer>
+												<integer>1</integer>
 												<key>Privileges</key>
 												<integer>493</integer>
 												<key>Type</key>
@@ -2066,9 +2066,9 @@
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
-												<string>../../source/qikec/Shrew Soft VPN Client Connect.app</string>
+												<string>/Applications/Shrew Soft VPN Client Connect.app</string>
 												<key>Path Type</key>
-												<integer>2</integer>
+												<integer>1</integer>
 												<key>Privileges</key>
 												<integer>493</integer>
 												<key>Type</key>
@@ -2159,7 +2159,40 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array/>
+												<array>
+													<dict>
+														<key>Children</key>
+														<array/>
+														<key>GID</key>
+														<integer>80</integer>
+														<key>Path</key>
+														<string>/Library/Frameworks/ShrewSoftQtCore.framework</string>
+														<key>Path Type</key>
+														<integer>1</integer>
+														<key>Privileges</key>
+														<integer>493</integer>
+														<key>Type</key>
+														<integer>3</integer>
+														<key>UID</key>
+														<integer>0</integer>
+													</dict>
+													<dict>
+														<key>Children</key>
+														<array/>
+														<key>GID</key>
+														<integer>80</integer>
+														<key>Path</key>
+														<string>/Library/Frameworks/ShrewSoftQtGui.framework</string>
+														<key>Path Type</key>
+														<integer>1</integer>
+														<key>Privileges</key>
+														<integer>493</integer>
+														<key>Type</key>
+														<integer>3</integer>
+														<key>UID</key>
+														<integer>0</integer>
+													</dict>
+												</array>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
